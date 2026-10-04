@@ -15,7 +15,7 @@
       /* Image de fond */
       background-image: url('fond.jpg');
       background-size: contain;
-      background-color: #000;
+      background-color: #16E0A7;
       background-position: center;
       background-attachment: fixed;
       background-repeat: no-repeat;
@@ -120,6 +120,14 @@
     .btn-secondary:hover {
       background: #444b52;
     }
+
+    /* Pied de page pour le compteur */
+    .footer {
+      text-align: center;
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 1px solid #eaecef;
+    }
   </style>
 </head>
 <body>
@@ -162,9 +170,13 @@
       </div>
     </div>
 
+    <!-- Compteur de visites discret -->
+    <div class="footer">
+      <img src="https://hitscounter.dev/api/hit?url=https%3A%2F%2Femilienb-bop.github.io%2Freprint%2F&label=Visites&color=%230366d6" alt="Compteur de visites">
+    </div>
+
   </div>
 
-  <!-- Script JavaScript pour basculer entre les onglets -->
   <script>
     function switchTab(evt, tabId) {
       const contents = document.querySelectorAll('.tab-content');

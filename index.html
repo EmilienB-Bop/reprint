@@ -15,9 +15,9 @@
       /* Image de fond */
       background-image: url('fond.jpg');
       background-size: contain;
-      background-color: #16E0A7;          /* L'image s'adapte à tout l'écran */
-      background-position: center;     /* Centrée */
-      background-attachment: fixed;    /* Reste fixe lors du défilement */
+      background-color: #16E0A7;
+      background-position: center;
+      background-attachment: fixed;
       background-repeat: no-repeat;
     }
 
@@ -25,28 +25,76 @@
     .container {
       max-width: 750px;
       margin: 0 auto;
-      background: rgba(255, 255, 255, 0.93);
+      background: rgba(255, 255, 255, 0.95);
       padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
 
     h1 {
       border-bottom: 2px solid #eaecef;
-      padding-bottom: 10px;
+      padding-bottom: 12px;
       margin-top: 0;
+      font-size: 1.5rem;
     }
 
-    .pub {
+    /* --- Barre d'onglets --- */
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
       margin-bottom: 24px;
+      border-bottom: 1px solid #e1e4e8;
+      padding-bottom: 10px;
+    }
+
+    .tab-btn {
+      background: #f1f3f5;
+      border: 1px solid #d0d7de;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #495057;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      background: #e9ecef;
+      color: #212529;
+    }
+
+    /* Onglet actif */
+    .tab-btn.active {
+      background: #0366d6;
+      color: white;
+      border-color: #0366d6;
+    }
+
+    /* Conteneurs de chaque onglet */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Cartes pour les publications / scripts */
+    .pub {
+      margin-bottom: 18px;
       padding: 16px;
       border: 1px solid #e1e4e8;
-      border-radius: 6px;
+      border-radius: 8px;
       background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
     }
 
     .pub h3 {
       margin-top: 0;
+      font-size: 1.15rem;
+      color: #1a1f2c;
     }
 
     .btn {
@@ -68,18 +116,69 @@
     .btn-secondary {
       background: #586069;
     }
+    
+    .btn-secondary:hover {
+      background: #444b52;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Reprint, preprint, analysis scripts, experiment code...Open access</h1>
+    <h1>Reprint, preprint, analysis scripts, experiment code... Open access</h1>
     
-    <div class="pub">
-      <h3>Titles</h3>
-      <p>Brochet et al. (2025). <em>Acta Psychologica</em>.</p>
-      
-      <a href="Brochet%20et%20al%202025.pdf" class="btn" target="_blank">PDF</a>
+    <!-- Les boutons d'onglets -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(event, 'tab-reprints')">Articles & Reprints</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-scripts')">Analysis scripts</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-experiments')">Experiment codes</button>
     </div>
+
+    <!-- Onglet 1 : Reprints & Articles -->
+    <div id="tab-reprints" class="tab-content active">
+      <div class="pub">
+        <h3>Titre de l'article</h3>
+        <p>Brochet et al. (2025). <em>Acta Psychologica</em>.</p>
+        <a href="Brochet%20et%20al%202025.pdf" class="btn" target="_blank">PDF</a>
+        <a href="https://doi.org/..." class="btn btn-secondary" target="_blank">DOI</a>
+      </div>
+    </div>
+
+    <!-- Onglet 2 : Scripts d'analyse (ex: R, Python) -->
+    <div id="tab-scripts" class="tab-content">
+      <div class="pub">
+        <h3>Modèles statistiques & analyse des temps de réaction</h3>
+        <p>Scripts R (brms / lme4) pour l'article Brochet et al. (2025).</p>
+        <a href="https://github.com/..." class="btn" target="_blank">Voir le script / GitHub</a>
+        <a href="https://osf.io/..." class="btn btn-secondary" target="_blank">OSF</a>
+      </div>
+    </div>
+
+    <!-- Onglet 3 : Code d'expérience (ex: PsychoPy, jsPsych) -->
+    <div id="tab-experiments" class="tab-content">
+      <div class="pub">
+        <h3>Tâche comportementale (PsychoPy / jsPsych)</h3>
+        <p>Protocole expérimental et stimuli utilisés dans l'étude.</p>
+        <a href="https://osf.io/..." class="btn" target="_blank">Télécharger la tâche</a>
+      </div>
+    </div>
+
   </div>
+
+  <!-- Petit script JavaScript pour basculer entre les onglets -->
+  <script>
+    function switchTab(evt, tabId) {
+      // Masquer tous les contenus
+      const contents = document.querySelectorAll('.tab-content');
+      contents.forEach(content => content.classList.remove('active'));
+
+      // Désactiver tous les boutons
+      const buttons = document.querySelectorAll('.tab-btn');
+      buttons.forEach(button => button.classList.remove('active'));
+
+      // Activer l'onglet cliqué
+      document.getElementById(tabId).classList.add('active');
+      evt.currentTarget.classList.add('active');
+    }
+  </script>
 </body>
 </html>

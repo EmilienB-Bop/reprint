@@ -1,0 +1,2373 @@
+---
+title: "Impact of motor error processing on performance on a Working Memory task: Effect of modulating cognitive load in High and Low Span groups"
+shorttitle: "Impact of motor error on Working Memory"
+
+format:
+  apaquarto-pdf: default
+
+
+author:
+  - name: "Emilien Brochet"
+    affiliation: [Université Toulouse Jean Jaurès, Laboratoire Cognition Langues Langage Ergonomie (CLLE) UMR 5263]
+    corresponding: true
+    orcid: 0000-0001-6395-2728
+    address: "Université Toulouse Jean Jaurès, 5 All. Antonio Machado, 31058 Toulouse"
+    email: "emilienbrochet@gmail.com"
+    role:
+      - conceptualization
+      - data curation
+      - formal analysis
+      - investigation
+      - resources
+      - software: lead
+      - visualization
+      - writing
+  - name: "Pierre-Vincent Paubel"
+    affiliation: [Université Toulouse Jean Jaurès, CNRS]
+    orcid: 0000-0002-2376-4674
+    role:
+      - software: supporting
+  - name: "Céline Lemercier"
+    affiliation: [Université Toulouse Jean Jaurès, Laboratoire Cognition Langues Langage Ergonomie (CLLE) UMR 5263]
+    orcid: 0000-0002-2832-8724
+    role:
+      - supervision
+      - writing
+
+author-note:
+  disclosures:
+    data-sharing: "Data from this study can be accessed at https://osf.io/u6pyk/"
+    conflict-of-interest: "The author declare there is no conflict of interest in this study"
+    
+abstract: |
+  Making a motor error, hitting the wrong key for example in responding to a stimulus, impacts perceptual, motor, and cognitive processes by implying a variation in performance and response time on the next trial (Post Error Slowing, Dutilh et al., 2012; Wessel, 2018). Wessel et al. (2022) showed that an error produced on a flanker-type task had a negative impact on a working memory span recognition. This effect is called ERIAM (Error Related Impairment of Active Working Memory) and consists of degradation of memory span following the production of an error on a conflict task concurrent to a memory task. In their study, the ERIAM effect is more pronounced in Low Span individuals. This suggests that these individuals have less stable Working Memory representations and are more likely to be impacted by an error. The presented study replicates the ERIAM protocol of Wessel et al. (2022) by adding variation of cognitive load. In addition, span recognition task is modified with a recall task. Results show a replication of ERIAM effect in our sample. Morever, ERIAM effect is only significant in lowspan group in the moderate cognitive load condition and in highspan group in the increased load condition. In line with Lavie's load theory (Lavie et al., 2004), we explain these results by the fact that High and Low Span groups do not process cognitive load increase in the same way.
+
+keywords: [Working Memory, Error, Cognitive load, Error Related Impairment of Active Working Memory, Conflict Tasks]
+wordcount: "230"
+
+bibliography: "references.bib"
+
+floatsintext: true
+numbered-lines: true
+mask: false
+
+
+classoption: "man"
+ 
+pdf:
+ documentclass: article
+ toc: true
+ number-sections: true
+ colorlinks: true
+---
+
+```{r r reproducible chunk, eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+
+renv::init()
+
+```
+
+```{r setup, include = FALSE}
+library(papaja)
+r_refs("r-references.bib")
+```
+
+```{r analysis-preferences, message=FALSE, warning=FALSE, include=FALSE}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# flexplot package installation, not on CRAN, run this lines if necessary
+# install.packages("devtools")
+# install the stable version
+# devtools::install_github("dustinfife/flexplot")
+
+
+#importation des packages nécessaires
+library(readxl)
+library(tidyverse)
+library(stringr)
+library(hrbrthemes)
+library(viridis)
+library(ggplot2)
+library(gridExtra)
+library(ggExtra)
+library(patchwork)
+library(effectsize)
+library(moments)
+library(stats)
+library(readr)
+library(report)
+library(lme4)
+library(dlookr)
+library(pracma)
+library(rcompanion)
+library(car)
+library(sjstats)
+library(ggstatsplot)
+library(lme4)
+library(lmerTest)
+library(glmmTMB)
+library(flexplot)
+library(ggpubr)
+library(ggsignif)
+library(gt)
+library(sjPlot)
+```
+
+```{r include=FALSE}
+# pvalue function to display pvalue in apa style
+format_p <- function(p) {
+  if (p < 0.001) {
+    return(" < .001")
+  } else {
+    return(paste0(" = ", round(p, 3)))
+  }
+}
+options(scipen = 999) #afficher les valeurs au format décimal
+```
+
+```{r data wrangling just for info, message=FALSE, warning=FALSE, include=FALSE}
+# # first data cleaning chunk
+# 
+# base <- read_excel("sujet_63.xls")
+# 
+# 
+# # keep only column of interest
+# 
+# base_1 <- base%>% 
+#   select(- CollectResponse.ACC, - Handedness, - CollectResponse.CRESP,
+#          - CollectResponse.RESP, - CollectResponse.RT, - Slide2.ACC, - Slide2.CRESP,
+#          - Slide2.RESP, - Slide2.RT,   - Clock.Information,- Session, -ExperimentVersion, -ExperimentName,
+#          -SessionDate, -SessionStartDateTimeUtc, -SessionTime,
+#          - DataFile.Basename, - Display.RefreshRate, - Group, - GoodBye.DEVICE,
+#          - Instruction1.DEVICE, - Instruction2.DEVICE, - Instruction3.DEVICE, 
+#          - Instruction4.DEVICE, - InstructionPractice.DEVICE, - RandomSeed,
+#          - RuntimeCapabilities, - RuntimeVersion, - RuntimeVersionExpected,
+#          - StudioVersion, - TextDisplay1.DEVICE, - Block, - BlockList1,
+#          - BlockList1.Cycle, - BlockList1.Sample, - `Procedure[Block]`,
+#          - `Procedure[Trial]`, - `Procedure[SubTrial]`, - `Running[Block]`,
+#          - `Running[Trial]`, - `Running[SubTrial]`, - TaskConsignes.DEVICE,
+#          - Trial, - TrialList, - TrialList.Cycle, - TrialList.Sample, - TrialTaskList,
+#          - TrialTaskList.Cycle, - TrialList.Sample, - CorrectResp,
+#          - Correct, - CorrectTask, - CorrectAnswer, - CorrectAnswerTask, - PresentedDigit,
+#          - PresentedDigit2, - CollectResponse.DEVICE, - CollectResponse.RTTime,
+#          - TrialTaskList.Sample, - SubTrial, - Digit, - Digit2, - DigitList, - DigitList2,
+#          - ITI2.ACC, - ITI2.CRESP, - ITI2.RESP, - ITI2.RT, - ITI4.ACC, - ITI4.CRESP,
+#          - ITI4.RESP, ITI4.RT, - ITI2.RTTime, - ITI4.RTTime, - List3, - List4, - List3.Cycle,
+#          - List4.Cycle, - List3.Sample, - List4.Sample, - Slide2.DEVICE, - Slide3.DEVICE,
+#          - Slide3.RTTime, - Stim, - Stim2, - Stimulus, - StimList, - StimList.Cycle, - StimList.Sample,
+#          - StimList2, - StimList2.Cycle, - StimList2.Sample, - Stimulus, - CollectResponse1.DEVICE,
+#          - ITI4.RT, - CollectResponse1.RTTime) %>% 
+# 
+# #supprimer les NA des colonnes de précision mémoire et flanker
+# 
+# filter(!is.na(CollectResponse1.ACC), !is.na(Slide3.CRESP))
+# 
+# write.csv(base_1, file = "traitement/analyse R/sujet_63_task.csv")
+```
+
+```{r eval=FALSE, message=FALSE, warning=FALSE, include=FALSE}
+# #second script: error categorization, for information
+# base2 <- read_csv("traitement/analyse R/sujet_63_task.csv")
+# 
+# 
+# # Créer une colonne pour la liaison avec l'essai mémoire
+# essai_mémoire <- 1:60
+# base2$essai_mémoire <- rep(essai_mémoire, each = 4)
+# 
+# 
+# # Ajouter une colonne pour la catégorisation, valeur par défaut est 1(pas d'erreur), si une erreur est commise au cours des 4 essais flanker, cette valeur passera à 0
+# base2$erreur_flanker <- 1
+# 
+# # Déterminer si au moins une erreur a été commise sur la tâche flanker pour chaque essai mémoire
+# base2$erreur_flanker <- ifelse(ave(base2$Slide3.ACC, base2$essai_mémoire, FUN = function(x) any(x == 0)), 0, 1)
+# 
+# # Créer une colonne Mem_erreur qui comprendra les essais de Slide3.ACC correspondant aux lignes avec une valeur de 0 dans erreur_flanker
+# base2$Mem_erreur <- ifelse(base2$erreur_flanker == 0, base2$CollectResponse1.ACC, NA)
+# 
+# # Créer une colonne Mem_correct qui comprendra les essais de Slide3.ACC correspondant aux lignes avec une valeur de 1 dans erreur_flanker
+# base2$Mem_correct <- ifelse(base2$erreur_flanker == 1, base2$CollectResponse1.ACC, NA)
+# 
+# #créer une colonne renvoyant le nombre de chiffres dans la série
+# base2$Ndigit <- str_count(base2$CorrectResp2, "\\d")
+# 
+# 
+# # Enregistrer les données modifiées dans un fichier CSV
+# write.csv(base2, file = "traitement/analyse R/sujet_63_analyse.csv")
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# #script de concaténation de la base
+# 
+# # Charger les jeux de données dans une liste / on peut rajouter les données en fonction de leur arrivée
+# data_list <- list(data1 <- read.csv("traitement/analyse R/sujet_1_analyse.csv"), 
+#                   data2 <- read.csv("traitement/analyse R/sujet_2_analyse.csv"),
+#                   data3 <- read.csv("traitement/analyse R/sujet_3_analyse.csv"),
+#                   data4 <- read.csv("traitement/analyse R/sujet_4_analyse.csv"),
+#                   data5 <- read.csv("traitement/analyse R/sujet_5_analyse.csv"),
+#                   data6 <- read.csv("traitement/analyse R/sujet_6_analyse.csv"),
+#                   data7 <- read.csv("traitement/analyse R/sujet_7_analyse.csv"),
+#                   data8 <- read.csv("traitement/analyse R/sujet_8_analyse.csv"),
+#                   data9 <- read.csv("traitement/analyse R/sujet_9_analyse.csv"),
+#                   data10 <- read.csv("traitement/analyse R/sujet_10_analyse.csv"),
+#                   data11 <- read.csv("traitement/analyse R/sujet_11_analyse.csv"),
+#                   data12 <- read.csv("traitement/analyse R/sujet_12_analyse.csv"),
+#                   data13 <- read.csv("traitement/analyse R/sujet_13_analyse.csv"),
+#                   data14 <- read.csv("traitement/analyse R/sujet_14_analyse.csv"),
+#                   data15 <- read.csv("traitement/analyse R/sujet_15_analyse.csv"),
+#                   data16 <- read.csv("traitement/analyse R/sujet_16_analyse.csv"),
+#                   data17 <- read.csv("traitement/analyse R/sujet_17_analyse.csv"),
+#                   data18 <- read.csv("traitement/analyse R/sujet_18_analyse.csv"),
+#                   data19 <- read.csv("traitement/analyse R/sujet_19_analyse.csv"),
+#                   data20 <- read.csv("traitement/analyse R/sujet_20_analyse.csv"),
+#                   data21 <- read.csv("traitement/analyse R/sujet_21_analyse.csv"),
+#                   data22 <- read.csv("traitement/analyse R/sujet_22_analyse.csv"),
+#                   data23 <- read.csv("traitement/analyse R/sujet_23_analyse.csv"),
+#                   data24 <- read.csv("traitement/analyse R/sujet_24_analyse.csv"),
+#                   data25 <- read.csv("traitement/analyse R/sujet_25_analyse.csv"),
+#                   data26 <- read.csv("traitement/analyse R/sujet_26_analyse.csv"),
+#                   data27 <- read.csv("traitement/analyse R/sujet_27_analyse.csv"),
+#                   data28 <- read.csv("traitement/analyse R/sujet_28_analyse.csv"),
+#                   data29 <- read.csv("traitement/analyse R/sujet_29_analyse.csv"),
+#                   data30 <- read.csv("traitement/analyse R/sujet_30_analyse.csv"),
+#                   data31 <- read.csv("traitement/analyse R/sujet_31_analyse.csv"),
+#                   data32 <- read.csv("traitement/analyse R/sujet_32_analyse.csv"),
+#                   data33 <- read.csv("traitement/analyse R/sujet_33_analyse.csv"),
+#                   data34 <- read.csv("traitement/analyse R/sujet_34_analyse.csv"),
+#                   data35 <- read.csv("traitement/analyse R/sujet_35_analyse.csv"),
+#                   data36 <- read.csv("traitement/analyse R/sujet_36_analyse.csv"),
+#                   data37 <- read.csv("traitement/analyse R/sujet_37_analyse.csv"),
+#                   data38 <- read.csv("traitement/analyse R/sujet_38_analyse.csv"),
+#                   data39 <- read.csv("traitement/analyse R/sujet_39_analyse.csv"),
+#                   data40 <- read.csv("traitement/analyse R/sujet_40_analyse.csv"),
+#                   data41 <- read.csv("traitement/analyse R/sujet_41_analyse.csv"),
+#                   data42 <- read.csv("traitement/analyse R/sujet_42_analyse.csv"),
+#                   data43 <- read.csv("traitement/analyse R/sujet_43_analyse.csv"),
+#                   data44 <- read.csv("traitement/analyse R/sujet_44_analyse.csv"),
+#                   data45 <- read.csv("traitement/analyse R/sujet_45_analyse.csv"),
+#                   data46 <- read.csv("traitement/analyse R/sujet_46_analyse.csv"),
+#                   data47 <- read.csv("traitement/analyse R/sujet_47_analyse.csv"),
+#                   data48 <- read.csv("traitement/analyse R/sujet_48_analyse.csv"),
+#                   data49 <- read.csv("traitement/analyse R/sujet_49_analyse.csv"),
+#                   data50 <- read.csv("traitement/analyse R/sujet_50_analyse.csv"),
+#                   data51 <- read.csv("traitement/analyse R/sujet_51_analyse.csv"),
+#                   data52 <- read.csv("traitement/analyse R/sujet_52_analyse.csv"),
+#                   data53 <- read.csv("traitement/analyse R/sujet_53_analyse.csv"),
+#                   data54 <- read.csv("traitement/analyse R/sujet_54_analyse.csv"),
+#                   data55 <- read.csv("traitement/analyse R/sujet_55_analyse.csv"),
+#                   data56 <- read.csv("traitement/analyse R/sujet_56_analyse.csv"),
+#                   data57 <- read.csv("traitement/analyse R/sujet_57_analyse.csv"),
+#                   data58 <- read.csv("traitement/analyse R/sujet_58_analyse.csv"),
+#                   data59 <- read.csv("traitement/analyse R/sujet_59_analyse.csv"),
+#                   data60 <- read.csv("traitement/analyse R/sujet_60_analyse.csv"),
+#                   data61 <- read.csv("traitement/analyse R/sujet_61_analyse.csv"),
+#                   data62 <- read.csv("traitement/analyse R/sujet_62_analyse.csv"),
+#                   data63 <- read.csv("traitement/analyse R/sujet_63_analyse.csv"))
+# 
+# # Initialiser le data.frame combiné
+# combined_data <- data_list[[1]]
+# 
+# # Parcourir les jeux de données restants et les concaténer en utilisant rbind()
+# for (i in 2:length(data_list)) {
+#   combined_data <- rbind(combined_data, data_list[[i]])
+# }
+# #recoder les données des stim flanker en congruent=1 et incongruent=0
+# combined_data$ItemFlanker <- ifelse(combined_data$ItemFlanker %in% c("flanker3.bmp", "flanker6.bmp"), 0,
+#                                     ifelse(combined_data$ItemFlanker %in% c("flanker4.bmp", "flanker5.bmp"), 1, combined_data$ItemFlanker))
+# 
+# 
+# #enregistrer le nouveau dataset
+# 
+# write.csv(combined_data, file = "traitement/analyse R/donnée_totale.csv")
+
+#load dataset from
+combined_data <- read_csv("donnée_totale.csv")
+```
+
+```{r}
+
+```
+
+\newpage
+
+# Introduction
+
+The examination of post-error phenomena has been an ongoing endeavour since the 1960s (Danielmeier & Ullsperger, 2011; Dudschig & Jentzsch, 2009; Dutilh et al., 2012; Laming, 1979; Notebaert et al., 2009; Pfister & Foerster, 2021) and the publication of Rabbitt's article. (Rabbitt, 1966). Since the inception of the field, studies have been predicated on the observation of behavioural phenomena arising in the aftermath of errors. Such phenomena include the lengthening of response times (RTs) and the subsequent modification of accuracy. These behavioural adjustments have been designated Post-Error Adjustments (PEA) (Danielmeier & Ullsperger, 2011), and are a means to infer underlying cognitive processes. PEA has been linked to cognitive control and working memory implementation (Regev & Meiran, 2014). The presence of PEA has been documented in a variety of conflict tasks, including the flanker task (Debener et al., 2005), Stroop task (Gehring & Fencsik, 2001), and Simon task (King et al., 2010). In a dual-task procedure intertwined with a working memory span task, J. Wessel and Jiang (2021a) collected data showing the impact of a motor error on working memory maintenance. This study experimentally linked error to higher-order cognitive functions (working memory, cognitive control and attention).
+In order to discuss error, it is essential to consider the Error Generic Error Modelling System (GEMS), which was developed by Reason (Reason, 1990). GEMS provides a robust foundation for the classification of errors according to the levels of processing achieved. The system categorises errors into three distinct categories: skill-based errors, rule-based errors, and knowledge-based errors. In this study, our primary focus is on the initial level, designated as 'skill-based' (see Skill-Rule-Knowledge (Rasmussen, 1983), from which Reason's model is derived). This level encompasses errors attributable to a lack of attention or to habitual responses. These errors are associated with an absence of attention to the pertinent aspects of the information to be processed. These errors can also be attributed to irrelevant aspects of the task or stimulus, as evidenced in conflict tasks, where attention is diverted from the task's objectives. Cognitive systems have been shown to monitor these errors (Botvinick et al., 2001), and to facilitate the detection and correction of errors through the engagement of cognitive control.
+In accordance with the seminal work of Miyake et al. (2000), cognitive control is delineated as a triad of factors: the inhibition of a prepotent response, the updating of working memory, and the shifting between mental sets. These factors exhibit distinct variance and correlations, as elucidated by Friedman and Robbins (2022). The occurrence of cognitive control is immediate upon the detection of an error (Shalgi et al., 2009), with the purpose of monitoring such errors (Botvinick et al., 2004). As demonstrated by Unsworth et al. (2022), High Span individuals (who possess superior working memory capacities: WMC) exhibit a reduced propensity to encounter attentional fluctuations during task execution. These individuals demonstrate an enhanced capacity to oversee errors (i.e., error monitoring). Conversely, Low Span individuals have been observed to demonstrate a propensity for unperceived errors, also termed error blindness (Buzzell et al., 2017), which is attributable to attentional fluctuations or mind wandering (Christoff et al., 2016). Cognitive control has been demonstrated to play a role in the ability to manage perceived errors and is related to attention. In order to detect an error, individuals must remain in a sufficient alert state, which is expensive in terms of attentional resources. Error awareness has been shown to be negatively correlated with attentional deficits and positively correlated with working memory capacities (WMC). As posited by Botvinick et al. (2001), the cognitive system is responsible for evaluating the necessity for cognitive control by identifying the occurrence of conflict in information processing. In the event of an error, this system activates (Botvinick et al., 2004), with the objective of resolving the conflict generated by the discrepancy between the formulated response and the anticipated response. Upon resolution of the conflict, the individual is able to redirect their focus to the task at hand, thereby mobilising all cognitive and attentional resources to achieve their objectives. The monitoring of errors and the subsequent adjustments in behaviour that occur in response to errors have been shown to provide insight into the underlying attentional and cognitive processes (Botvinick et al., 2004). It has been demonstrated to be informative of lapses of attention (Unsworth et al., 2022) and cognitive control (Regev & Meiran, 2014). According to Engle and Kane (2003), a robust correlation exists between WMC, attentional control, and the conflict management system. Improved WMC has been shown to facilitate enhanced conflict detection and more effective implementation of attentional control (Unsworth et al., 2022). Consequently, individuals with superior WMC (and thus superior attentional control) are likely to demonstrate enhanced efficacy in processing errors (Unsworth et al., 2022).
+“Everyone knows what attention is. It is the taking possession by the mind, in clear and vivid form, of one out of what seem several simultaneously possible objects or trains of thought.” (James, 1890). Attention is crucial in processing information. As Egeth & Kahneman (1975) and Wickens (2008) models postulate, the limited capacity of human information processing capabilities is dependent on the limited capacity of the human reservoir of attention. The selection of relevant information is therefore a prerequisite for achieving the goals of the individual (Niedermeyer, 1994). Selectivity is defined as the distinction between two distinct functions of attention: the first being divided attention, which implies that attention is considered a reserve of processing resources; and the second being selective attention, which implies that attention is an instance of conscious control of processing. The hypothesis that perception has limited capacities was first put forward at the perceptual level ( BROADBENT, 1958; TREISMAN, 1964). Subsequently, the hypothesis of a later selection (Deutsch & Deutsch, 1963) was formulated, proposing the perception of stimuli as an automatic process. Lavie and Dalton (2014) finally proposed a hybrid model that allows for both types of selection.
+In order to achieve the selection of information, it is first necessary to exercise control over one's attention. Attentional control can be defined as the ability to focus and maintain attentional resources on a specific task or goal, while discarding information (e.g. from thoughts or external stimuli) that is not relevant to that goal. Attentional resources are oriented endogenously (i.e. top-down), according to the individual's goals and objectives, by attentional control (i.e. executive attention). These resources are then directed in a controlled and voluntary manner to the relevant aspects of the environment and/or internal cognitive processes for the achievement of these goals. The prefrontal cortex (particularly the dorsolateral area) supports the active maintenance of the goals in progress in the task and has been linked to the WMC of individuals (Kane & Engle, 2002). In order to understand the factors that affect the process of selecting relevant information, Lavie proposed a theory that measures the impact of two types of load: perceptual and cognitive loads.
+Lavie and Tsal (Lavie & Tsal, 1994) propose perceptual load theory (see also Lavie & Dalton, 2014 and Lavie, 2010), which models selective attention and resolves the debate about the location of attentional filtering. According to this theory, the primary determinant of the locus of attentional filtering is perceptual load. In their protocol, Forster & Lavie (2007) propose a task for participants to detect the presence of a target letter among two pre-specified possibilities (e.g. X or N) in a circle composed of items. In the experiment, a distractor letter is displayed adjacent to the circle. This distractor letter corresponds either to the target letter (in what is termed the 'congruent condition', e.g. target "X" and distractor letter "X") or to the other alternative (in what is termed the 'incongruent condition', e.g. target "X" and distractor letter "N"). The effect of the distractor letter is measured by the difference in response time to the target between the congruent and incongruent conditions. In incongruent trials, where the distractor letter is an alternative to the target, response times are observed to increase. In the low-load condition, the circle is composed of small "o"s and the target letter, thus accentuating the target letter within the circle (Posner, 1980). Conversely, in the high load condition, the circle is composed of other letters along with the target letter. The authors of the study observed that in the high perceptual load condition (where the circle is composed of other letters), the effect of the distractor letter on response time is almost entirely cancelled. This suggests that a higher perceptual load may serve to either decrease or even cancel the effects of distractors, and in this particular instance, an early attentional filtering process limits the perception of irrelevant elements.
+In circumstances where the perceptual load is minimal, individuals' residual processing abilities may be influenced by irrelevant distractor stimuli. This suggests the necessity for subsequent selection processes to be implemented in order to prevent these distractors from exerting control over behaviour (Lavie, 2010). Lavie and Dalton (2014) proposed a dual-task protocol to measure the effect of cognitive load on distractor processing. The protocol entailed the administration of a memory task, in which participants were required to memorise a digit span, followed by a selective attention task, prior to the presentation of the digit span at baseline. In the context of the selective attention task, participants are instructed to identify a central target letter (z or x) presented concurrently with a peripheral distractor letter that is either congruent, incongruent, or neutral. This configuration results in a minimal perceptual load, consisting solely of the target letter and the distractor letter. In the digit span task, the number of digits presented is varied (from 1 to 6) to observe the effect of cognitive load on distractor processing. It is hypothesised that a higher cognitive load will increase the effect of the distractor on response time, which is the opposite effect to that of a higher perceptual load.
+Should the presentation of the stimulus engender a high level of perceptual load, then attentional filtering will be early and automatic, resulting in the individual's perceptual limits being reached. Distractors that are not relevant to the task at hand may not even be perceived. However, should this level allow for all perceived information (both relevant and irrelevant) to be processed without overload, filtering will occur at the higher (cognitive) level of processing. The consequences of this filtering process depend on its location. In cases where filtering occurs early, it leads to minimized distractibility to irrelevant stimuli due to these stimuli being filtered and, consequently, not perceived. Conversely, a low perceptual load has been shown to result in an increased susceptibility to irrelevant stimuli. Furthermore, an elevated cognitive load has been demonstrated to exacerbate the impact of distractors. The effects of perceptual and cognitive load on the processing of distractors, such as task-irrelevant stimuli, are contradictory. The present study will concentrate on the cognitive load effect on attentional processes.
+The observed differences in WMC between the high and low span groups can be attributed to variations in attentional control. In order to ascertain the methodologies employed by diverse participant groups in the effective selection of pertinent information while filtering out irrelevant data, Kane & Engle (Kane & Engle, 2000) conducted an evaluation of the performance of two participant cohorts distinguished by their WMC (high span vs. low span). The experiment involved the presentation of a list of words. During the encoding phase, participants are required to tap a simple sequence on a keyboard in accordance with a predetermined rhythm. This is followed by an interfering task (oral version of the Trail Making Test (Armitage, 1946), which lasts for 16 seconds in order to prevent participants from repeating the list. Participants are then asked to recall the list. Initial trials revealed that Low Spans demonstrated equivalent performance to High Spans. However, subsequent trials indicated that High Span participants exhibited superior performance in comparison to Low Span participants. This phenomenon can be attributed to the proactive interference inhibition exhibited by High Span participants. Their superior attentional control capacity enables them to effectively counteract the effects of interference, thereby ensuring enhanced recall efficacy in the presence of interference.
+The authors then propose an increase in the complexity of the sequence in which participants type with their finger following the encoding of the word list. This results in an overall cognitive cost to the task that increases, thus making the procedure more similar to a dual task. In this case, the authors no longer observe a greater effect of proactive interference in Low Span compared to High Span. They conclude that High Span participants are no longer able to counteract the effects of proactive interference in situations of higher cognitive load. Attentional control is a voluntary and resource-intensive process. As cognitive load increases, conflict resolution (proactive interference) is impaired in High Span participants because they are no longer able to deploy sufficient attentional resources. This has a subsequent impact on recall of the word list. In Low Span, attentional control is not used to counteract the effects of proactive interference, and this results in a stronger effect of this interference (than in High Span) and no difference between load conditions.
+In order to assess behavioural responses to errors, conflict tasks (e.g. flanker task, Simon task, Stroop task) are frequently employed in laboratory settings (Derrfuss et al., 2021; Schroder et al., 2019; Steinhauser et al., 2017). These tasks are also commonly utilised to demonstrate attentional control (Bastian et al., 2020) implementation. The design of these tasks requires participants to select one option from a series of alternatives as expeditiously as possible. The complexity of these tasks stems from the strategic manipulation of the relevant and irrelevant dimensions of the presented stimuli. Congruence is characterised by the similarity between the information provided by the target (relevant) and the distractors (irrelevant).In contrast, incongruence is defined by the divergence between these two dimensions. In congruent trials, participants typically exhibit a higher level of accuracy and faster response times compared to incongruent trials (EGNER, 2007). The incongruent condition involves the interference of information from two distinct dimensions, leading to a conflict in response selection and the subsequent activation of the conflict management system. Incongruent trials have been shown to be more prone to generating errors (Gratton et al., 2017). Consequently, conflict tasks have been shown to induce errors in participants.
+In the domain of error behavioural adjustments, Post-Error Slowing (PES) is defined as an increase in reaction time (RT) on post-error trials (Laming, 1979). Conversely, Post-Improvement of Accuracy (PIA) is characterised by an enhancement in response accuracy on post-error trials. The relationship between response time and response accuracy on post-error trials is associated with the emergence of two predominant theoretical frameworks: The former, termed functional theories of PES (Fievez et al., 2022), are predicated on observations of enhanced accuracy levels in response to post-error trials, while the latter, termed non-functional theories of PES, posit a decrease of accuracy in post-error trials. PIA is not uniformly substantiated in the extant scientific literature. The extant literature on the subject is inconclusive, with some studies reporting a link between PES and PIA (e.g., Maier et al., 2011; Marco-Pallarés et al., 2008) while others not (e.g., Carp & Compton, 2009; Fiehler et al., 2005). These theories are also referred to as adaptive (functional) and maladaptive (non-functional). The improvement in post-error accuracy has been demonstrated to support the functional/adaptive explanations for PES. The stream of adaptive theories provides a functional value to PES. In conjunction with the concomitant observation of increased accuracy on trials following the error (PIA; Danielmeier et al., 2011), PES enables participants to regain an optimal level of performance on the task. The link between subsequent increase in accuracy and PES has been modeled in a Drift Diffusion type computational model (Ratcliff & McKoon, 2008). This model shows a post-error increase in response caution materialized by a decrease in drift rate (Dutilh et al., 2011). The drift rate is parameter of the model that represents how quickly informations from the stimulus are collected. According to Dutilh et al. (2012), “[…] participants become more cautious after an error and slightly more daring after a correct response […]”.
+Conversely, in instances where post-error accuracy does not demonstrate an increase (Schroder et al., 2019), non-functional/maladaptive theories offer a more suitable explanation for PES. Maladaptive theories propose that PES emerges as a diversion of attention to irrelevant aspects of the task at hand. Error is defined as an unexpected event for the participant, thereby directing their attention towards it. However, when the task becomes more challenging and errors begin to outnumber correct responses, a phenomenon referred to as the Post-Correct Slowing effect is observed (Notebaert et al., 2009). This effect involves an increase in reaction times (RTs) following a correct response, which is the opposite of the PES. Here it’s the unexpected aspect that causes the slowdown, and depending on the relative frequency of the stimuli, it can be either an error trial or a correct trial. In their protocol, errors are not followed by an improvement of subsequent performance (PIA). PES therefore has no functional value. Other theories in this current (maladaptive theory) postulate an impossibility to process the additional information constituted by error. These theories propose that the processing of additional information, such as errors, is impeded by a bottleneck in the information processing capacity, resulting in a saturation of ongoing cognitive processes. By manipulating the response/stimulus interval, Jentzsch and Dudschig (2009) observed that the shortest intervals (50 ms) resulted in the highest PES, which was associated with a decline in response accuracy. Over the longest intervals (1000 ms), the authors report a reduction in PES compared to the shortest intervals and no significant variation of response accuracy.
+Subsequent research has enabled the convergence of divergent data patterns from adaptive and maladaptive theories. J. R. Wessel (2017) synthesises these contradictory approaches and demonstrates their complementarity with Adaptive Orienting Theory (AOT). This theory postulates that PES is a phenomenon that occurs in two phases. Initially, there is a broad inhibition of perceptual, motor and cognitive processes that are activated to carry out the task. Attention is diverted from the goals of the task by the surprise effect caused by an error, but this phenomenon is not error-specific, and any unexpected event is likely to provoke this pattern. This leads to a decrease in accuracy and an increase in RTs. Wessel speaks of 'orienting-related' PES, and the next stimulus arrives too early during the inhibition period of PES. Consequently, the occurrence of PIA is not observed, thereby facilitating the consideration of data derived from non-functional (maladaptive) theories. 
+In the subsequent stage, J. R. Wessel (2017) delineates an error-specific phase in which the source of attentional disturbance is identified and examined. During this phase, attentional processes aimed at processing errors are progressively reallocated. In this phase, attention is oriented towards errors to facilitate their processing. This is followed by a reengagement with the goals of the current task and a restoration of pre-error performance levels. The purpose of this subsequent phase is to facilitate the restoration of optimal levels of accuracy in the task at hand. PES is then described as 'strategic', a deliberate and gradual process influenced by cognitive control. Once these two stages have been completed, PIA can be observed, as postulated by adaptive theories. PES has a functional status by allowing the refocusing of attentional processes on the current task to recover pre-error performance levels.
+In their seminal work, J. Wessel and Jiang (2021a) sought to establish a correlation between motor error, working memory (WM) processes, and attentional processes. To this end, they proposed a protocol to test one of the predictions of Adaptive Orienting Theory (J. R. Wessel, 2017). This protocol sought to ascertain the impact of a motor error on ongoing cognitive processes during the task. The experimental protocol employed is a dual-task protocol (see Box 1), comprising a memory task and a flanker task (Eriksen & Eriksen, 1974). The trial sequence is outlined as follows: Initially, a series of letters is displayed on the screen for a duration of 2000 milliseconds, requiring memory retention. Participants are then required to indicate the direction of a central arrow (the target, indicating left or right) while ignoring two distractor arrows symmetrically arranged to the left and right of this target. The distractor arrows both point in the same direction as the target (congruent trial) or in the opposite direction (incongruent trial). Following the completion of six trials of the arrow task, a series of letters is again presented to the participants. In 50% of cases, the series exhibited a correspondence with the series presented at the commencement of the trial. Participants were tasked with evaluating the congruence between the two sets of letters through a YES/NO response. Prior to the initiation of the protocol, a training phase is employed to calibrate the size of the series of letters presented to the participants' abilities. Thereafter, the set undergoes an increase or decrease of one item, contingent on the participants' recognition responses. Trial categorization as either a correct or an error trial is contingent upon the occurrence of an error during the arrow task.
+The authors of the study observed that error trials resulted in a decrease in the level of accuracy on the recognition of the span in comparison to correct trials, which is known as the ERIAM effect (Error Related Impairment of Active Working Memory). In Experiment 2, the ERIAM effect demonstrated a medium effect size (t(52) = 3.29, p = .002, Cohen's d = .45). However, no increase in response times on span recognition was observed, which would then more specifically signify a speed-accuracy trade-off (SAT) adjustment (Donkin et al., 2014). A decrease in the accuracy of working memory recall, which is associated with a decrease in response times, can be more simply explained by a decrease in the time taken by subjects to formulate and provide the correct response. Furthermore, the authors increased the inter-stimulus interval (from 200 to 2300 milliseconds in Experiment 1 and Experiment 2, respectively) and once again obtained an ERIAM effect with a longer interval. This finding demonstrates that the ERIAM effect is not contingent on the bottleneck passage of information postulated by some non-functional theories of PES (Jentzsch & Dudschig, 2009). The ERIAM effect is more pronounced in Low Span participants than in High Span participants, thereby providing a link between WM capacities and error monitoring abilities (Unsworth et al., 2022).
+
+
+> **Box 1:** McIsaac et al. (2015) proposes a taxonomy of dual-task paradigms. A dual task is the concurrent performance of two tasks that can be performed separately, measured separately, and have distinct goals. Thus, each task may be different in character, drawing on distinct domains. For example, a memorization task will be based on mnemonic and cognitive processes. Another task may consist of performing a movement. The two tasks may also be based partly or totally on similar processes. (two tasks of a cognitive nature). In J. Wessel and jiang (2021a) , the protocol implemented involves a memory task and a motor task of deciding the direction of an arrow. The motor task requires selective attentional abilities, as it involves not being disturbed by distracting arrows of a flanker-type task (Eriksen & Eriksen, 1974). The memory task proposed by J. Wessel and jiang (2021a) , taken independently, is a simple short-term memory task. Participants are asked to recognize a letter span presented a few seconds earlier. It is the performance of this task in a dual-task protocol that makes it a Working Memory task.*
+
+The study conducted by J. Wessel and jiang (2021a) , while offering interesting results, can be subject to a few limitations, particularly on the methodological level. One limitation, due to post-hoc hypothesizing of a link between the ERIAM effect and WM capacities, is impossible experimental control of claim. In fact, over the course of five experiments in their study, Wessel and colleagues observed a negative correlation between ERIAM effect and participants’ WM capacities (r = -.41, p < .001). High Span individuals are less impacted by motor error than are Low Span individuals. One experiment in the protocol proposes to increase the number of items in the memory span. Similar in all respects to the previous experiment, the authors no longer observed a significant correlation between the ERIAM effect and WM capacities when the cognitive load was increased (r = -.37, p = .071). This observation needs further exploration and this work attempts to address it by systematically varying the number of items to be memorized and by performing linear regression analyses.
+The present study will observe the effects of an error on a digit span in working memory by implementing a complex span protocol. This type of protocol (reading span [Daneman & Carpenter, 1980]; operation span [Turner & Engle, 1989]; symmetry span [Kane et al., 2004]) requires participants to maintain items in memory while performing a second concurrent task. The maintenance of working memory and the selection of salient aspects of the stimuli within the same task are both called upon. The error on the conflict task will then allow for the categorisation of trials according to their accuracy and for the estimation of the effect of the error on the maintenance of the working memory span.
+The primary objective of this study is to replicate the ERIAM effect (J. Wessel & Jiang, 2021a) by implementing a modified version of Experiment 2, where the most significant ERIAM effect was observed. Trials are conducted in a laboratory setting to ensure the collection of the most precise data, unencumbered by the constraints of online runs related to connections and/or hardware. The objective is twofold: firstly, to provide new data to retest the finding of J. Wessel and Jiang (2021a); and secondly, to attempt to verify Adaptive Orienting Theory's (J. R. Wessel, 2017) prediction of error-induced inhibition of ongoing cognitive processes during the task. The WM task is to be closed with digit span recall rather than recognition, as we propose. This approach is underpinned by the observation that the recognition response to the WM task engages the same response modalities as the conflict task, both of which involve choosing between two possibilities: YES/NO for the similarity to the set of digits and Left/Right for the direction of the target arrow on the arrow task. The use of the numeric keypad keys to recall the digit span facilitates the dissociation of these response modalities and the observation of performance on the WM task by minimising the confusion of response modalities (Pashler, 1990).
+Furthermore, J. Wessel and Jiang (2021a) demonstrated a significant negative correlation (in five out of seven experiments) between the ERIAM effect and subjects' average WMC, concluding that the ERIAM effect more strongly impacts subjects for whom the memory task is more demanding. Individuals with better WMC are those who are better able to regulate their attentional processes and to monitor the occurrence of error. The ERIAM effect appears to be less pronounced for individuals with higher working memory capacity (WMC) compared to those with lower WMC. However, a notable point that merits attention is the observation that the correlation between the ERIAM effect and WMC becomes marginal and non-significant when an increase in cognitive load is introduced, as evidenced by the transition from Experiment 5 to Experiment 6. This decline in the ERIAM/WMC correlation with increasing cognitive load is a subject that merits further investigation, particularly given that the two experiments that led to this difference in results involved two separate samples.
+
+
+## Presentation of hypotheses
+
+We expect to observe a degradation in memory recall performance following a motor error (i.e., on flanker task). **This constitutes our first hypothesis.** We will replicate, using a slightly modified task, the ERIAM effect observed by @wessel2021 .
+
+During an increase in cognitive load, High Span subjects will have their attentional resources mobilized more extensively on the recall of the span and will have less ability to inhibit the effect of an error on motor task. Low Span subjects will be less affected by the increase in cognitive load because their attentional resources will have already been consumed at lower levels of load. **This constitutes our second hypothesis.** We will test ERIAM effect in these two groups and under these two conditions of cognitive load.
+
+Following our second hypothesis testing we propose **an exploratory part** (with analysis made post-hoc after hypothesis 2 testing) to try to increase our understanding of ERIAM effect. In this part we test more low-level construct (accuracy) within group span and cognitive load condition.
+
+Then, we will observe the ERIAM/WMC correlation. We will observe this correlation in both groups and condition of load. @kane2000 showed that High Span individuals were more impacted by an increase in cognitive load than Low Span individuals. @thomassin2015 also found a similar pattern in their study, High Span individuals' strategies are more efficient but also more sensitive to task's complexity. This effect was named *Hard Fall Effect*. We propose that correlation between ERIAM and WMC will become positive in high span group as cognitive load increase. In low span group we expect not to see such a difference between load condition. **This constitutes our third hypothesis**.
+
+Finally, a **second exploratory part** is proposed with post-hoc analysis following hypothesis 3. Without taking care of cognitive load, we want to observe ERIAM/WMC for the whole group (as Wessel et al. did in their study), and in the high and low span groups.
+
+## Methods
+
+### Participants / Sample size justification
+
+We choose to take part of information we have to justify our sample size. Original study want to reach a 80% power collecting data on 53 participants. To ensure good probabilities of replication, we increase our a priori power to 90% [@erdfelder1996]. Data on a sample of `r max(combined_data$Subject)` participants were collected. The participants gave their free and informed consent to undergo the experiment. Research Ethics Committee of Toulouse accepted the research by ruling on the ethical compliance of the present study (2023-596). The study was pre-registered on OSF [@brochet2022]. The final sample consisted of 58 participants after data processing (as 5 participants did not fulfill the whole experiment) with `r round(table(combined_data$Sex)["femme"] / length(combined_data$Sex) * 100, 2)`% women and `r round(table(combined_data$Sex)["homme"] / length(combined_data$Sex) * 100, 2)`% men (age: *M* = `r round(mean(combined_data$Age),2)`, *SD* = `r round(sd(combined_data$Age),2)`).
+
+### Material/Stimuli
+
+Stimuli for conflict task (the target arrow and the four winged arrows surrounding it) were composed of a five-character string with symbols "\>" and "\<" . Width and height of stimuli represent 10.8° and 3.3° of visual angle, respectively (centered on a 17-inch screen located 60 centimeters from participants. Stimulus for flanker task consists of target and four flankers distributed two by two on each side of target (e.g. \>\>\<\>\>). For memory task, digits from 0 to 9 are presented in *Times New Roman* font size 80. Each digit in series is separated from the other digits by the '-' character to limit deliberate chunking [@gobet2012]. Series of digits are constructed in random mode, with possible repetition (to make series larger than 10 digits possible). All stimuli are displayed in white on a black background. The task was programmed on Eprime 3.0 software (Psychology Software Tools, Pittsburgh, PA).
+
+### Procedure
+
+Structure of the task is shown in **Figure 1**. Each trial is structured in the same way. Trial begins with presentation of a fixation cross centered on screen for 1,000 ms, followed by presentation of series of digits at the same location on screen for 2000 ms. A neutral screen (black screen) is then presented for 200 ms before the start of flanker task. Flanker task consists of a sequence of four stimuli for a total duration of 4800 ms. Stimulus consists of target accompanied by 4 flankers, presented on screen for 200 ms. Each stimulus is followed by a black screen for 1000ms allowing participants to respond. We did not proceed to a priming unlike the replicated study (100 ms of advance for flankers, then addition of target for 100 ms). The 4 flankers all pointed in the same direction (left or right) and depending on whether central target pointed in direction of the flankers or the opposite direction, the trial was considered congruent or incongruent, respectively. Participants were asked to respond to the orientation of the central target regardless of the flankers as quickly as possible by pressing the "A" or "P" keys for left and right, respectively. The 4 stimuli of flanker task are followed by the number series recall task. Participants are then instructed to recall serie presented to them at beginning of trial using number pad and then validate with ENTER. There is no time limit defined on this recall task, next trial is presented only after participants have validated.
+
+**Figure 1: Task procedure** ![Task procedure](illustration%20tâche.png){fig-align="left" width="500"}
+
+### Training trials for span calibration
+
+Experiment consists of two parts. First part consists of a training of 24 trials during which length of the span varies according to participant's response accuracy. Objective is to calibrate length of the series requested in memory task to subjects' capacities. Span could thus increase by one, remain stable or decrease by one digit depending on participants' two previous answers accuracy (for two correct answers, one correct answer or zero correct answer respectively). Initial span is set on four digits. Participants were not aware of the purpose of these calibration trials. This calibration portion consists only of congruent flanker stimuli so that:
+
+-   Participants could become familiar with structure of the trials and response modalities.
+
+-   Digit span recall is not overly impacted by motor errors in calibration phase.
+
+On this training phase, after each of the participants' actions, feedback is given (green dot for good response, red dot for bad response or "not fast enough" on flanker task if participants do not respond fast enough, response to digit span is not time limited). No participant achieved a memory digit span of less than four digits.
+
+### Completion of the task
+
+Second part consists of the task itself, composed of 60 memory trials. Flanker stimuli are congruent and incongruent (same proportion of 50-50%) within each memory trial. In order to test our second hypothesis, an increase in digit span is performed adding one digit to the set calibrated in the training phase, on half of the trials. Total duration of the experiment is approximately 20 minutes.
+
+### Data analysis
+
+We proceeded to analyze the behavioral data (accuracy and RT) from portion of task without training/calibration trials. We remove trials where participants did not respond on flanker task or memory task. Trials where response on flanker task was less than 200ms were also deleted. Data from memory span responses were, as in replicated study, transformed into proportion of correct responses to conduct analyses. Analyses are between-subjects, data were agglomerated between participants, allowing to invoke central limit theorem.
+
+To test our first hypothesis we compared digit span response accuracy between error and correct conditions (depending on whether an error was produced on interfering flanker task) by two-sided paired-samples T-test at .029 alpha threshold corrected for two-stage study [@pocock1977]. In these two conditions level of congruence is similar (of 50%) in order not to confuse ERIAM effect with a congruence effect.
+
+In order to test our second hypothesis of greater impact of an increase in cognitive load in high span participants on ERIAM effect, we fitted a linear mixed model (estimated using restricted maximum likelihood) to predict ERIAM effect with cognitive load (CL) and High/Low span group (formula: ERIAM \~ CL \* span + (1 \| Subject) ). Groups are differentiated by number of digits in digit span (above and below the sample median). Cognitive load levels differ by adding one item in the digit span (for the increased load condition) compared to the moderate condition. ERIAM effect is calculated as the difference in Working Memory recall accuracies between error and correct conditions on conflict task.
+
+Next, we also reported correlation between ERIAM effect and WMC for comparison with the replicated study. WMC are operationalized as overall digit span average response accuracy without taking into account error and correct conditions on the flanker task. We then observed this correlation in the High span and Low span group and under both conditions of cognitive load. Regression analyses were conducted to test for significance, with participants' WMC as predictors of the ERIAM effect.
+
+# Results
+
+We conducted a interim data analysis on this study (at *N*/2 in april 2023). To preserve the significance of our hypothesis tests, we chose to apply a Pocock correction [@pocock1977] to the alpha thresholds of our primary hypotheses. Employing a two-stage design with two looks at the data, the Pocock correction indicates an alpha level of **0.029** for two-tailed tests. Consequently, we apply this alpha level throughout the remainder of the study. Summary statistics is available in **Table 1**.
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+# data filtering without RT<200ms
+base4 <- filter(combined_data, Slide3.RT >= 200)
+
+# Mean and SD
+base5 <- base4 %>%
+  group_by(Subject) %>%
+  summarize(
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    TR_Mem_Correct = mean(ifelse(erreur_flanker == 1, NA, CollectResponse1.RT), na.rm = TRUE),
+    TR_Mem_Erreur = mean(ifelse(erreur_flanker == 0, NA, CollectResponse1.RT), na.rm = TRUE),
+    SD_Mem_erreur = sd(Mem_erreur, na.rm = TRUE),
+    SD_Mem_correct = sd(Mem_correct, na.rm = TRUE),
+    delta_mean = sum(Mean_Mem_correct - Mean_Mem_erreur),
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE),
+    NDigit = mean(Ndigit, na.rm = TRUE),
+    TRFlankerINC = mean(ifelse(ItemFlanker == 1, NA, Slide3.RT / 1000), na.rm = TRUE),
+    TRFlankerCON = mean(ifelse(ItemFlanker == 0, NA, Slide3.RT / 1000), na.rm = TRUE),
+    Flanker.AccINC = mean(ifelse(ItemFlanker == 1, NA, Slide3.ACC), na.rm = TRUE),
+    Flanker.AccCON = mean(ifelse(ItemFlanker == 0, NA, Slide3.ACC), na.rm = TRUE),
+    Flanker.Acc = mean(Slide3.ACC, na.rm = TRUE),
+    TRFlanker = mean(Slide3.RT, na.rm = TRUE)/1000
+  ) %>% 
+  ungroup()
+
+# Effectuer le test t de Student pour précision
+result <- t.test(base5$Flanker.AccCON, base5$Flanker.AccINC, paired=TRUE)
+
+# Extraire les résultats du test
+dfcon <- result$parameter  # Degrés de liberté
+t_valuecon <- result$statistic  # Valeur t
+p_valuecon <- result$p.value #pvalue
+
+# Calculer le coefficient de Cohen (Cohen's d)
+cohen_d<-cohens_d(t.test(base5$Flanker.AccCON, base5$Flanker.AccINC, paired=TRUE)) %>% 
+  select("Cohens_d") %>% 
+  round(2)
+
+# Effectuer le test t de Student pour temps de réponse
+result2 <- t.test(base5$TRFlankerCON, base5$TRFlankerINC, paired=TRUE)
+
+# Extraire les résultats du test
+dfcon2 <- result2$parameter  # Degrés de liberté
+t_valuecon2 <- result2$statistic  # Valeur t
+p_valuecon2 <- result2$p.value
+
+# Calculer le coefficient de Cohen (Cohen's d)
+cohen_d2<-cohens_d(t.test(base5$TRFlankerCON, base5$TRFlankerINC, paired=TRUE)) %>% 
+  select("Cohens_d") %>%
+  rename("Cohens_d2"="Cohens_d")
+  round(2)
+
+base5 <- na.omit(base5)
+# Enregistrer les données
+write.csv(base5, file = "traitement/analyse R/moyenne_ET_sujetnew.csv")
+```
+
+```{r include=FALSE}
+base7<-base5 %>% 
+  ungroup()
+```
+
+<!--TABLE-->
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+dataa <- data.frame(
+  Subject = base7$Subject,  # Conserver l'identifiant du participant
+  "Accuracy/error_trial" = base7$Mean_Mem_erreur,
+  "Accuracy/correct_trial" = base7$Mean_Mem_correct,
+  "RT/error_trial" = base7$TR_Mem_Erreur / 1000,  # Conversion des millisecondes en secondes
+  "RT/correct_trial" = base7$TR_Mem_Correct / 1000  # Conversion des millisecondes en secondes
+)
+
+
+means <- c(
+  mean(dataa$"Accuracy/error_trial", na.rm = TRUE),
+  mean(dataa$"Accuracy/correct_trial", na.rm = TRUE),
+  mean(dataa$"RT/error_trial", na.rm = TRUE),
+  mean(dataa$"RT/correct_trial", na.rm = TRUE)
+)
+
+sds <- c(
+  sd(dataa$"Accuracy/error_trial", na.rm = TRUE),
+  sd(dataa$"Accuracy/correct_trial", na.rm = TRUE),
+  sd(dataa$"RT/error_trial", na.rm = TRUE),
+  sd(dataa$"RT/correct_trial", na.rm = TRUE)
+)
+
+ci <- function(x) {
+  se <- sd(x, na.rm = TRUE) / sqrt(sum(!is.na(x)))
+  mean_val <- mean(x, na.rm = TRUE)
+  lower <- mean_val - (1.96 * se)  # Interval de confiance à 95%
+  upper <- mean_val + (1.96 * se)  # Interval de confiance à 95%
+  paste0(format(mean_val, digits = 2), " (", format(sd(x, na.rm = TRUE), digits = 2), ") [", format(lower, digits = 2), " : ", format(upper, digits = 2), "]")
+}
+
+means_ci <- sapply(dataa, ci)
+
+data_conflict <- data.frame(
+  "RT/congruent_trial" = base7$TRFlankerCON,
+  "RT/incongruent_trial" = base7$TRFlankerINC,
+  "Accuracy/congruent_trial" = base7$Flanker.AccCON,
+  "Accuracy/incongruent_trial" = base7$Flanker.AccINC
+)
+
+means_conflict <- sapply(data_conflict, mean, na.rm = TRUE)
+sds_conflict <- sapply(data_conflict, sd, na.rm = TRUE)
+means_ci_conflict <- sapply(data_conflict, ci)
+
+table_data <- data.frame(
+  Task = c("WORKING MEMORY", rep("", 3), "------------", "FLANKER", rep("", 3)),
+  Mean_SE_CI = c(means_ci[1:4], "", means_ci_conflict[1:4])
+)
+
+# Inversion de l'ordre des colonnes
+table_data <- table_data[, c("Task", "Mean_SE_CI")]
+
+# Correction des annotations de la colonne Mean_SE_CI
+table_data$Mean_SE_CI <- gsub("\\[", "[", table_data$Mean_SE_CI)
+table_data$Mean_SE_CI <- gsub("\\]", "]", table_data$Mean_SE_CI)
+
+apa_table(table_data, caption = "Summary of descriptive statistics on each task of the protocol", placement = "H", landscape = FALSE, note = "For each task of the protocol, Mean, Standard Error (SE), and 95% Confidence Interval [CI] are represented. For the Working Memory task, accuracy and response time (RT in second) are represented according to error or correct trial on Conflict Task. For flanker task, RT and accuracy are represented according to congruent or incongruent trials.")
+```
+
+## Hypothesis 1 testing
+
+### Conflict task results
+
+An illustration of the results observed on the conflict task is offered in **Figure 2 (a&b),** summary statistics is available in **Table 1**. Compared to congruent trials, incongruent trials were less accurate (*t*(`r dfcon`) = `r round(t_valuecon,2)`, *p*`r format_p(p_valuecon)`, Cohen's *d* = `r round(cohen_d$Cohens_d,2)`) and had longer RTs than congruent trials (*t*(`r dfcon2`) = `r round(t_valuecon2,2)`, *p*`r format_p(p_valuecon2)`, Cohen's *d* = `r abs(round(cohen_d2$Cohens_d2, 2))`). This indicates that the manipulation in the conflict task worked by replicating the conflict interference effects widely documented in the literature.
+
+**Figure 2: Accuracy and Response Time on conflict task**
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# create a dataset
+base6 <- read_csv("traitement/analyse R/moyenne_ET_sujetnew.csv")
+
+base8 <- subset(base6, select = -c(Flanker.Acc, TRFlanker))
+base8 <- base8 %>%
+  pivot_longer(cols = starts_with("Flanker.Acc"), names_to = "Condition", values_to = "Accuracy") %>%
+  mutate(Condition = ifelse(Condition == "Flanker.AccCON", "Congruent", "Incongruent"))
+
+base9 <- subset(base6, select = -c(Flanker.Acc, TRFlanker)) %>% 
+  pivot_longer(cols = starts_with("TRFlanker"), names_to = "Condition", values_to = "TRFlanker") %>%
+  mutate(Condition = ifelse(Condition == "TRFlankerCON", "Congruent", "Incongruent"), TRFlanker = TRFlanker*1000)
+
+################# suppress under chance level response ############################
+# Définir le seuil de précision (ex: < 55% considéré comme chance)
+seuil_chance <- 0.55
+
+# Calculer la précision moyenne par sujet
+moyenne_precision <- base8 %>%
+  group_by(Subject) %>%
+  summarise(moyenne_acc = mean(Accuracy, na.rm = TRUE))
+
+# Identifier les sujets qui ont une précision au niveau du hasard
+sujets_chance <- moyenne_precision %>%
+  filter(moyenne_acc < seuil_chance) %>%
+  pull(Subject)
+
+# Filtrer la base de données pour supprimer ces sujets
+base8_filtrée <- base8 %>%
+  filter(!(Subject %in% sujets_chance))
+
+base9_filtrée <- base9 %>%
+  filter(!(Subject %in% sujets_chance))
+
+#############REVIEWER RESPONSE###### suppress lower chance
+# > library(effsize)
+# > 
+# > # Filtrer les données pour chaque condition
+# > accuracy_incongruent <- base8_filtrée$Accuracy[base8_filtrée$Condition == "Incongruent"]
+# > accuracy_congruent <- base8_filtrée$Accuracy[base8_filtrée$Condition == "Congruent"]
+# > 
+# > # Test t pour échantillons appariés
+# > t_test_result <- t.test(accuracy_incongruent, accuracy_congruent, paired = TRUE)
+# > 
+# > # Calcul du d de Cohen pour échantillons appariés
+# > d_cohen <- cohen.d(accuracy_incongruent, accuracy_congruent, paired = TRUE)
+# > 
+# > # Affichage des résultats
+# > print(t_test_result)
+
+> # Regrouper par sujet et calculer la moyenne des TRFlanker pour chaque condition
+# > base_groupée <- base8_filtrée %>%
+# +     group_by(Subject) %>%
+# +     summarise(TRFlankerINC = mean(TRFlankerINC, na.rm = TRUE),
+# +               TRFlankerCON = mean(TRFlankerCON, na.rm = TRUE))
+# > 
+# > # Test t pour échantillons appariés
+# > t_test_result <- t.test(base_groupée$TRFlankerINC, base_groupée$TRFlankerCON, paired = TRUE)
+# > 
+# > # Calcul du d de Cohen pour échantillons appariés
+# > d_cohen <- cohen.d(base_groupée$TRFlankerINC, base_groupée$TRFlankerCON, paired = TRUE)
+# > 
+# > # Affichage des résultats
+# > print(t_test_result)
+#################END OF REVIEWER RESPONSE##################
+# Vérifier combien de sujets ont été exclus
+nombre_exclus <- length(sujets_chance)
+print(paste("Nombre de participants exclus:", nombre_exclus))
+
+# Recréer le boxplot de la précision avec la nouvelle base
+p1_filtré <- ggplot(base8_filtrée, aes(x = Condition, y = Accuracy, fill = Condition)) +
+  geom_boxplot() +
+  geom_point(position = position_jitter(width = 0.2), color = "black", alpha = 0.3) +
+  scale_y_continuous(name = "Accuracy", limits = c(0, 1.1)) +
+  scale_fill_manual(values = c("lightgreen", "red"), guide = FALSE) +
+  theme_apa() +
+  theme(legend.position = "none") +
+  geom_line(aes(group = Subject), position = position_dodge(width = 0.5), color = "black", alpha = 0.3)
+
+# Recréer la densité de la précision avec la nouvelle base
+density_plot_filtré <- ggplot(base6 %>% filter(!(Subject %in% sujets_chance))) +
+  geom_density(aes(x = Flanker.AccINC, fill = "Incongruent"), alpha = 0.4, fill="red") +
+  geom_density(aes(x = Flanker.AccCON, fill = "Congruent"), alpha = 0.4, fill="lightgreen") +
+  theme_apa() +
+  theme(legend.position = "none",
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank(),
+        axis.ticks = element_line()) +
+  xlim(0, 1.1) +
+  coord_flip()
+
+# Combiner et afficher le panel
+panel_filtré <- p1_filtré | density_plot_filtré
+panel_filtré
+
+# print(sujets_chance)
+# 36 and 54 particpants were removed from analyssis due to chance level response
+
+###########################################################
+
+p1<-ggplot(base8_filtrée, aes(x = Condition, y = Accuracy, fill = Condition)) +
+  geom_boxplot() +
+  geom_point(position = position_jitter(width = 0.2), color = "black", alpha = 0.3) +
+  scale_y_continuous(name = "Accuracy", limits = c(0, 1.1)) +
+  scale_fill_manual(values = c("lightgreen", "red"), guide = FALSE) +
+  theme_apa() +
+  theme(legend.position = "none") +
+  geom_line(aes(group = Subject), position = position_dodge(width = 0.5), color = "black", alpha = 0.3)
+
+density_plot <- ggplot(base6 %>% filter(!(Subject %in% sujets_chance))) +
+  geom_density(aes(x = Flanker.AccINC, fill = "Incongruent"), alpha = 0.4, fill="red") +
+  geom_density(aes(x = Flanker.AccCON, fill = "Congruent"), alpha = 0.4, fill="lightgreen") +
+  theme_apa() +
+  theme(legend.position = "none",
+        axis.title.x = element_blank(),  # Supprimer le titre de l'axe des x
+        axis.title.y = element_blank(),  # Supprimer le titre de l'axe des y
+        axis.text.x = element_blank(),   # Supprimer les étiquettes de l'axe des x
+        axis.text.y = element_blank(),   # Supprimer les étiquettes de l'axe des y
+        axis.ticks = element_line())+
+  xlim(0, 1.1)+
+  coord_flip()
+
+#pour les temps de réponse
+p2<-ggplot(base9_filtrée, aes(x = Condition, y = TRFlanker, fill = Condition)) +
+  geom_boxplot() +
+  geom_point(position = position_jitter(width = 0.2), color = "black", alpha = 0.3) +
+  scale_y_continuous(name = "RT in ms", limits = c(200, 1000)) +
+  scale_fill_manual(values = c("lightgreen", "red"), guide = FALSE) +
+  theme_apa() +
+  theme(legend.position = "none") +
+  geom_line(aes(group = Subject), position = position_dodge(width = 0.5), color = "black", alpha = 0.3)
+
+
+density_plot2 <- ggplot(base6 %>% filter(!(Subject %in% sujets_chance))) +
+  geom_density(aes(x = TRFlankerINC, fill = "Incongruent"), alpha = 0.4, fill="red") +
+  geom_density(aes(x = TRFlankerCON, fill = "Congruent"), alpha = 0.4, fill="lightgreen") +
+  theme_apa() +
+  theme(legend.position = "none",
+        axis.title.x = element_blank(),  # Supprimer le titre de l'axe des x
+        axis.title.y = element_blank(),  # Supprimer le titre de l'axe des y
+        axis.text.x = element_blank(),   # Supprimer les étiquettes de l'axe des x
+        axis.text.y = element_blank(),   # Supprimer les étiquettes de l'axe des y
+        axis.ticks = element_line())+
+  xlim(0.2, 1)+
+  coord_flip()
+
+
+# Combine the graphs and display them together
+panel <- p1|density_plot
+panel
+panel2 <- p2|density_plot2
+panel2
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+meanDig<-base6 %>%
+  select(NDigit)
+```
+
+
+```{r}
+#### WMC NDigit relation
+ggplot(base5, aes(x = NDigit, y = WMC)) +
+  geom_point(color = "blue", size = 2) +  # Nuage de points en bleu
+  geom_vline(xintercept = 7, linetype = "dashed", color = "red") +  # Ligne verticale pointillée
+  labs(
+    title = "",  # Titre en italique
+    x = "Cognitive Load", 
+    y = "Working Memory Capacities"
+  ) +
+  theme_minimal(base_family = "sans") +  # Thème minimaliste avec police sans-serif
+  theme(
+    plot.title = element_text(face = "italic", size = 14),  # Titre en italique
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10)
+  )
+```
+
+### Memory task results
+
+An illustration of the observed results is shown in **Figure 3(a&b),** summary statistics is available in **Table 1**. The participants' memory load consisted of `r trunc(min(meanDig))` to `r trunc(max(meanDig))` digits (*M* = `r round(mean(meanDig$NDigit),2)`, *SD* = `r round(sd(meanDig$NDigit),2)`). The first key question of this work, constituting the attempt to replicate the work of @wessel2021 and our first hypothesis, is the effect of an error on the conflict task on subsequent WM recall. The data show no significant deviation from a normal distribution.
+
+**Figure 3: Accuracy and Response Time on Working Memory Task**
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# Create the double boxplot graph
+# suppress participant with chance level response
+base6<-base6 %>% filter(!(Subject %in% sujets_chance)
+base10 <- base6 %>%
+  pivot_longer(cols = starts_with("Mean"), names_to = "Condition", values_to = "Accuracy") %>%
+  mutate(Condition = ifelse(Condition == "Mean_Mem_erreur", "Error", "Correct"))
+
+base11 <- base6 %>% 
+  pivot_longer(cols = starts_with("TR_Mem"), names_to = "Condition", values_to = "RT") %>%
+  mutate(Condition = ifelse(Condition == "TR_Mem_Erreur", "Error", "Correct"))
+######
+p3 <- ggplot(base10, aes(x = Condition, y = Accuracy,  fill = Condition)) +
+  geom_boxplot() +
+  geom_point(position = position_jitter(width = 0.2), color = "black", alpha = 0.3) +
+  scale_y_continuous(name = "Accuracy", limits = c(0, 1)) +
+  scale_fill_manual(values = c("lightgreen", "red"), guide = FALSE) +
+  theme_apa() +
+  theme(legend.position = "none") +
+  geom_line(aes(group = Subject), position = position_dodge(width = 0.5), color = "black", alpha = 0.3)
+
+
+density_plot3 <- ggplot(base6) +
+  geom_density(aes(x = Mean_Mem_erreur, fill = "Error"), alpha = 0.4, fill="red") +
+  geom_density(aes(x = Mean_Mem_correct, fill = "Correct"), alpha = 0.4, fill="lightgreen") +
+  theme_apa() +
+  theme(legend.position = "none",
+        axis.title.x = element_blank(),  # Supprimer le titre de l'axe des x
+        axis.title.y = element_blank(),  # Supprimer le titre de l'axe des y
+        axis.text.x = element_blank(),   # Supprimer les étiquettes de l'axe des x
+        axis.text.y = element_blank(),   # Supprimer les étiquettes de l'axe des y
+        axis.ticks = element_line())+
+  xlim(0, 1)+
+  coord_flip()
+
+#pour les temps de réponse
+p4 <- ggplot(base11, aes(x = Condition, y = RT,  fill = Condition)) +
+  geom_boxplot() +
+  geom_point(position = position_jitter(width = 0.2), color = "black", alpha = 0.3) +
+  scale_y_continuous(name = "RT in ms", limits = c(0, 12000)) +
+  scale_fill_manual(values = c("lightgreen", "red"), guide = FALSE) +
+  theme_apa() +
+  theme(legend.position = "none") +
+  geom_line(aes(group = Subject), position = position_dodge(width = 0.5), color = "black", alpha = 0.3)
+
+density_plot4 <- ggplot(base6) +
+  geom_density(aes(x = TR_Mem_Erreur, fill = "Error"), alpha = 0.4, fill="red") +
+  geom_density(aes(x = TR_Mem_Correct, fill = "Correct"), alpha = 0.4, fill="lightgreen") +
+  theme_apa() +
+  theme(legend.position = "none",
+        axis.title.x = element_blank(),  # Supprimer le titre de l'axe des x
+        axis.title.y = element_blank(),  # Supprimer le titre de l'axe des y
+        axis.text.x = element_blank(),   # Supprimer les étiquettes de l'axe des x
+        axis.text.y = element_blank(),   # Supprimer les étiquettes de l'axe des y
+        axis.ticks = element_line())+
+  coord_cartesian(ylim = c(0, 12000))+
+  coord_flip()
+
+# Combine the graphs and display them together
+panel3 <- p3|density_plot3
+panel3
+panel4 <- p4|density_plot4
+panel4
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+##########
+# suppress 34 and 56 subject from base
+base5 <- base5 %>%
+  filter(!(Subject %in% c(36, 54)))
+
+# t test for accuracy
+result3 <- t.test(base5$Mean_Mem_correct, base5$Mean_Mem_erreur, paired=TRUE)
+
+# Extraire les résultats du test
+df3 <- result3$parameter  # Degrés de liberté
+t_value3 <- result3$statistic  # Valeur t
+p_value3 <- result3$p.value
+
+
+# Calculer le coefficient de Cohen (Cohen's d)
+cohen_d3<-cohens_d(t.test(base5$Mean_Mem_correct, base5$Mean_Mem_erreur)) %>% 
+  select("Cohens_d") %>% 
+  round(2)
+
+# Effectuer le test t de Student pour temps de réponse
+result4 <- t.test(base5$TR_Mem_Correct, base5$TR_Mem_Erreur, paired=TRUE)
+
+# Extraire les résultats du test
+df4 <- result4$parameter  # Degrés de liberté
+t_value4 <- result4$statistic  # Valeur t
+p_value4 <- result4$p.value
+
+# Calculer le coefficient de Cohen (Cohen's d)
+cohen_d4<-cohens_d(t.test(base5$TR_Mem_Correct, base5$TR_Mem_Erreur)) %>% 
+  select("Cohens_d") %>%
+  round(2)
+```
+
+We compared response accuracy of Working Memory recall in the two conditions (according to an error has been produced on conflict task or not) using paired-sample t-tests. Trials with an error on the conflict task are significantly less accurate than trials without (*t*(`r df3`) = `r round(t_value3,2)`, *p*`r format_p(p_value3)`, Cohen's *d* = `r cohen_d3$Cohens_d`). This effect is slightly larger than in the experiment 2 of Wessel et al. where the authors find a Cohen *d* = .32. Response accuracy between the correct and error conditions thus fell on average from `r round(mean(dataa$Accuracy.correct_trial,na.rm = TRUE),2)` to `r round(mean(dataa$Accuracy.error_trial,na.rm = TRUE),2)` respectively. This effect does not appear to be linked to an adjustment of the participants' response time/accuracy function, as response time of two conditions do not differ significantly (*t*(`r df4`) = `r round(t_value4,2)`, *p*`r format_p(p_value4)`, Cohen's *d* = `r cohen_d4$Cohens_d`). Action error commited during the delay period thus impaired subsequent working memory accuracy on the digit span recall. Our first hypothesis is thus corroborated by data, and ERIAM effect has been replicated.
+
+## Hypothesis 2 testing
+
+```{r data preparation H2, message=FALSE, warning=FALSE, include=FALSE}
+# Data preparation for hypothesis 2
+# Charger les données
+data <- combined_data
+
+# Filtrer les données en supprimant les essais où Slide3.RT < 200
+data_filtered <- filter(data, Slide3.RT >= 200)
+
+# Calculer les moyennes et écart-types par sujet pour les variables Mem_erreur et Mem_correct
+data_grouped <- data_filtered %>%
+  group_by(Subject) %>%
+  mutate(moyNdigit = mean(Ndigit, na.rm = TRUE), first_Ndigit = first(Ndigit)) %>% 
+  ungroup()
+
+
+# Filtrage des données en utilisant la valeur de la première ligne de chaque sujet
+df5<-data_grouped %>%
+  filter(moyNdigit<7) %>%
+  group_by(Subject, Ndigit) %>% 
+  filter(Ndigit == first_Ndigit + 1) %>%
+  mutate(moyNdigit=moyNdigit,
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    eriam = Mean_Mem_correct - Mean_Mem_erreur,
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE),
+    span = "lowspan",
+    charge="increased"  ) %>% 
+  ungroup() %>%
+  distinct(Subject, .keep_all = TRUE)
+
+
+df6<-data_grouped %>%
+  filter(moyNdigit>=7) %>%
+  group_by(Subject,Ndigit) %>% 
+  filter(Ndigit == first_Ndigit + 1) %>%
+  mutate(moyNdigit=moyNdigit,
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    eriam = Mean_Mem_correct - Mean_Mem_erreur,
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE),
+    span = "highspan",
+    charge="increased"  ) %>% 
+  ungroup() %>%
+  distinct(Subject, .keep_all = TRUE)
+
+
+df7<-data_grouped %>%
+  filter(moyNdigit>=7) %>%
+  group_by(Subject, Ndigit) %>% 
+  filter(Ndigit == first_Ndigit) %>%
+  mutate(moyNdigit=moyNdigit,
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    eriam = Mean_Mem_correct - Mean_Mem_erreur,
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE),
+    span = "highspan",
+    charge="moderate"  ) %>% 
+  ungroup() %>%
+  distinct(Subject, .keep_all = TRUE)
+
+
+df8 <- data_grouped %>%
+  filter(moyNdigit < 7) %>%
+  group_by(Subject, Ndigit) %>% 
+  filter(Ndigit == first(Ndigit)) %>%
+   mutate(moyNdigit=moyNdigit,
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    eriam = Mean_Mem_correct - Mean_Mem_erreur,
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE),
+    span = "lowspan",
+    charge = "moderate") %>% 
+  ungroup() %>%
+  distinct(Subject, .keep_all = TRUE)
+
+
+
+dfa <- merge(df5, df7, all=TRUE)
+dfb<-merge(df6,df8,all=TRUE)
+df<-merge(dfa,dfb,all=TRUE)
+
+dfglm<-df %>% select(Subject, span, charge, eriam, WMC, Mean_Mem_erreur, moyNdigit, Mean_Mem_correct ) %>% 
+  na.omit() %>% 
+  group_by(span)
+
+dfglm2 <- subset(dfglm, eriam != 0) #subset without 0value for eriam
+
+# long format for data
+dfglmlong2 <- dfglm2 %>% 
+  pivot_longer(cols = starts_with("Mean_Mem"), names_to = "Condition", values_to = "Accuracy") %>%
+  mutate(Condition = ifelse(Condition == "Mean_Mem_erreur", "Error", "Correct"), Condition = as.factor(Condition), charge = as.factor(charge), span = as.factor(span))
+
+# réordonner ordre de la variable condition
+dfglmlong2$eriam_scaled <- scale(dfglmlong2$eriam, center = TRUE, scale = TRUE)
+dfglmlong2$Accuracy_scaled <- scale(dfglmlong2$Accuracy, center = TRUE, scale = TRUE)# centering
+# dfglmlong2$Condition <- factor(dfglmlong2$Condition, levels = rev(levels(dfglmlong2$Condition)))
+dfglmlong2$span <- factor(dfglmlong2$span, levels = rev(levels(dfglmlong2$span)))
+dfglmlong2$charge <- factor(dfglmlong2$charge, levels = rev(levels(dfglmlong2$charge)))
+
+
+dfglmlong <- dfglmlong2 %>%
+  group_by(charge, Condition, span) %>%
+  summarize(mean_accuracy = mean(Accuracy),
+            sd_accuracy = sd(Accuracy),
+            mean_eriam = mean(eriam),
+            sd_eriam = sd(eriam),
+            n = n())
+```
+
+Then we want to know if this ERIAM effect is differently impacting high and low span group within our two cognitive load conditions. To test this hypothesis we fit a linear mixed model using restricted maximum likelihood (REML) to assess for change in ERIAM level according to cognitive load and subject span group with the formula: $$eriam -> cognitive.load*span + (1|subject)$$
+
+Mixed models allow us to deal with repeated measure within subject and non-independance of data. Proceding by model comparison, we start fitting a null model with formula and then we add predictors one by one: $$eriam -> 1 + (1|subject)$$ This first model allow us to check for intraclass correlation index (*ICC*).
+
+```{r hypothesis 2 testing, echo=FALSE, message=FALSE, warning=FALSE}
+# eriam model for hypothesis testing / model comparison approach
+#null model
+modeleglm3 <- glmer(eriam_scaled ~ 1 + (1|Subject),
+            family = gaussian,
+            data = dfglmlong2)
+
+
+# model 5 (1 predictor) has been fit later, name is not change to conserve further inlines
+modeleglm5 <- glmer(eriam_scaled ~ span + (1|Subject),
+            family = gaussian,
+            data = dfglmlong2)
+######## post analysis 
+modeleglm55 <- glmer(eriam_scaled ~ span + charge+ (1|Subject),
+            family = gaussian,
+            data = dfglmlong2)
+#######
+modeleglm66 <- glmer(eriam_scaled ~ charge+ (1|Subject),
+            family = gaussian,
+            data = dfglmlong2)
+#full model for hypothesis testing
+modeleglm4 <- glmer(eriam_scaled ~ span * charge + (1|Subject),
+            family = gaussian,
+            data = dfglmlong2)
+
+
+
+estimates_moderiam <- estimates(modeleglm3) # for ICC and design effect
+compareglm3 <- model.comparison(modeleglm3, modeleglm66)
+compareglm2 <- model.comparison(modeleglm3, modeleglm5)
+report(modeleglm66)
+
+# report(modeleglm4) #uncomment and run to see analysis of eriam model with predictor for hypothesis 2
+
+
+```
+
+```{r}
+#test de puissance du modèle
+library(simr)
+summary(modeleglm4)
+
+modeleglm_reduit <- glmer(eriam_scaled ~ span + charge + (1|Subject),
+                          family = gaussian, data = dfglmlong2)
+
+modeleglm_reduit2 <- glmer(eriam_scaled ~ charge+ span + (1|Subject),
+                          family = gaussian, data = dfglmlong2)
+### simplest model testing
+modeleglm_reduit3 <- lmer(eriam_scaled ~ charge + (1|Subject), data = dfglmlong2)
+
+powerSim(modeleglm_reduit, fixed("charge", method="z"))
+powerCurve(modeleglm_reduit, along="Subject")#span
+powerCurve(modeleglm_reduit2, along="Subject")#charge
+powerCurve(modeleglm_reduit3, along="Subject")#charge
+
+
+
+summary(modeleglm_reduit)
+
+
+library(ggplot2)
+library(dplyr)
+
+# Your current power data
+power_data <- data.frame(
+  Subjects = c(3, 9, 17, 24, 30, 38, 44, 49, 56, 63),
+  Power = c(24.7, 14.5, 16.4, 20.3, 22.2, 25.5, 28.5, 31.6, 34.9, 38.3)
+)#span
+
+power_data2 <- data.frame(
+  Subjects2 = c(3, 9, 17, 24, 30, 38, 44, 49, 56, 63),
+  Power2 = c(13.6, 16.5, 26.1, 30.8, 38.1, 46.5, 54.1, 61, 66.1, 70.6)
+)#charge
+
+# Fit a quadratic regression model to predict power
+fit <- lm(Power ~ poly(Subjects, 2), data = power_data)#SPAN
+fit2 <- lm(Power2 ~ poly(Subjects2, 2), data = power_data2)#CHARGE
+# Generate predictions up to 100 subjects
+new_subjects <- data.frame(Subjects = seq(3, 100, by = 5))
+new_subjects$Power_Pred <- predict(fit, newdata = new_subjects)#SPAN
+new_subjects2 <- data.frame(Subjects2 = seq(3, 100, by = 5))
+new_subjects2$Power_Pred2 <- predict(fit2, newdata = new_subjects2)#CHARGE
+
+# Plot the power curve SPAN
+ggplot() +
+  geom_point(data = power_data, aes(x = Subjects, y = Power), color = "blue", size = 3) +  # Observed data points
+  geom_line(data = new_subjects, aes(x = Subjects, y = Power_Pred), color = "red", linetype = "dashed") + # Extrapolated curve
+  geom_hline(yintercept = 80, linetype = "longdash", color = "green", size = 1.2) + # 80% threshold (more visible)
+  labs(title = "Power Curve with Extrapolation (Up to 100 Subjects) for span",
+       x = "Number of Subjects",
+       y = "Power (%)") +
+  theme_minimal()
+
+# Plot the power curve CHARGE
+ggplot() +
+  geom_point(data = power_data2, aes(x = Subjects2, y = Power2), color = "blue", size = 3) +  # Observed data points
+  geom_line(data = new_subjects2, aes(x = Subjects2, y = Power_Pred2), color = "red", linetype = "dashed") + # Extrapolated curve
+  geom_hline(yintercept = 80, linetype = "longdash", color = "green", size = 1.2) + # 80% threshold (more visible)
+  labs(title = "Power Curve with Extrapolation (Up to 100 Subjects) for cognitive load",
+       x = "Number of Subjects",
+       y = "Power (%)") +
+  theme_minimal()
+
+```
+
+We found an *ICC* = `r round(estimates_moderiam[["icc"]][["icc"]],2)`, indicating strong data dependency within subject. Design effect is telling us that we artificially increase the sample size by a `r round(estimates_moderiam[["icc"]][["design.effect"]],2)` factor not considering random effect. Mixed model is appropriated in this case. Compared to the *null model*, first model with span as a predictor do not yield significative improvement of fit to the data. *AIC* = `r round(compareglm3[["statistics"]][["aic"]][1],2)` for the *null model* and *AIC* = `r round(compareglm3[["statistics"]][["aic"]][2],2)` for the model with predictors while *BIC* = `r round(compareglm3[["statistics"]][["bic"]][1],2)` and `r round(compareglm3[["statistics"]][["bic"]][2],2)` respectively for *null model* and model with predictors. Finally, *Bayes Factor* do not really favor model, *Bf~10~* = `r round(compareglm3[["statistics"]][["bayes.factor"]][2],3)`, *p* = .098. Adding one predictor (cognitive load) to this model exhibits a significantly worse fit to the data compared to the null model. *AIC* = `r round(compareglm2[["statistics"]][["aic"]][1],2)` for the *null model* and *AIC* = `r round(compareglm2[["statistics"]][["aic"]][2],2)` for the model with predictors while *BIC* = `r round(compareglm2[["statistics"]][["bic"]][1],2)` and `r round(compareglm2[["statistics"]][["aic"]][2],2)` respectively for *null model* and model with span and cognitive load as predictors. Finally, *Bayes Factor* favored *null model*, *Bf~10~* = `r round(compareglm2[["statistics"]][["bayes.factor"]][2],3)`, *p* = .024. So we don't analyze the model with predictors (but you'll find results in the script). Thus our second hypothesis of a more pronounced ERIAM effect in *high span* group with increased cognitive load compared to *low span* group, with the analyses we carried out, is not supported by data. Nethertheless, we propose a visualization of these non-significant results in **Figure 4**.
+
+**Figure 4: ERIAM effect according to cognitive load and group**
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+# plot for eriam model, non significant
+ggplot(dfglmlong, aes(x = charge, y = mean_eriam, shape = span, color = span, group = interaction(charge, span))) +
+  geom_errorbar(aes(ymin = mean_eriam - sd_eriam / sqrt(n),
+                    ymax = mean_eriam + sd_eriam / sqrt(n)),
+                width = 0.1,
+                position = position_dodge(width = 0.5)) +
+  geom_point(size = 3, fill = "black",
+             position = position_dodge(width = 0.5)) +
+  geom_line(aes(group = span),
+            linetype = "dashed",
+            color = "black",
+            position = position_dodge(width = 0.5)) +
+  scale_shape_manual(values = c("lowspan" = 16, "highspan" = 1)) +
+  scale_color_manual(values = c("lowspan" = "black", "highspan" = "black")) +
+  labs(x = "Cognitive load", y = "Eriam effect") +
+  theme_apa()
+```
+
+*None of the results yield significance*
+
+## Exploratory part for in-depth understanding of the ERIAM effect
+
+Going further in our understanding of the patern beyond the data we collect, we want to analyse accuracy on working memory recall as a more low level construct than ERIAM. We fit a new linear mixed model using restricted maximum likelihood (REML) to assess for change in response accuracy on working memory task according to cognitive load, error on conflict task and subject span group with the formula: $$accuracy => cognitive.load*span*error + (1|subject)$$
+
+In **Figure 5** you can find residuals distribution of the model.
+
+**Figure 5: Mixed Model residuals**
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+#### logistic regression
+logistic <- data_grouped %>%
+  transmute(
+    Subject,
+    flanker = ifelse(erreur_flanker == 0, "flanker_error", "flanker_correct"),
+    Accuracy = ifelse(CollectResponse1.ACC == 0, "memory_error", "memory_correct"),
+    Span = ifelse(moyNdigit < 7, "lowspan", "highspan"),
+    LOAD = ifelse(Ndigit <= first_Ndigit, "moderate", "increased")
+  )
+# Accuracy in factor to fit the model
+logistic <- logistic %>%
+  mutate(Accuracy = factor(Accuracy, levels = c("memory_error", "memory_correct")))
+logistic <- logistic %>%
+  mutate(LOAD = factor(LOAD, levels = c("moderate", "increased")))
+
+####### models definition
+# Modèle Null (seulement effet aléatoire du sujet)
+logistic_null <- glmer(Accuracy ~ 1 + (1 | Subject), data = logistic, family = binomial)
+
+# Ajout de Span
+logistic_1 <- glmer(Accuracy ~ Span + (1 | Subject), data = logistic, family = binomial)
+
+# Ajout de LOAD
+logistic_2 <- glmer(Accuracy ~ Span + LOAD + (1 | Subject), data = logistic, family = binomial)
+
+# Ajout de flanker
+logistic_3 <- glmer(Accuracy ~ Span + LOAD + flanker + (1 | Subject), data = logistic, family = binomial)
+
+logistic_model <- glmer(Accuracy ~ Span * LOAD * flanker + (1 | Subject), 
+               data = logistic, 
+               family = binomial)
+
+predictions <- logistic %>%
+  mutate(predicted = predict(logistic_3, type = "response"))
+
+predictions$Span <- factor(predictions$Span, levels = rev(levels(factor(predictions$Span))))
+
+# Graphique des effets d'interaction
+ggplot(predictions, aes(x = LOAD, y = predicted, color = flanker, group = flanker)) +
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.5) + 
+  geom_smooth(method = "glm", method.args = list(family = "binomial"), se = TRUE) + # Courbes de tendance
+  facet_wrap(~ Span) + # Séparation selon Span
+  labs(x = "Cognitive Load",
+       y = "Accuracy",
+       color = "Flanker Response") +
+  scale_color_manual(values = c("flanker_correct" = "lightgreen", "flanker_error" = "#F78B8B")) + # Inversion des couleurs
+  theme_minimal(base_size = 14) +
+  theme(text = element_text(family = "Times New Roman"),
+        plot.title = element_text(hjust = 0.5)) # Centrer le titre
+
+
+summary(logistic_3)
+
+#### model comparison
+model_comparison <- data.frame(
+  Model = c("Null", "Span", "Span + LOAD", "Span + LOAD + Flanker", "Full Model"),
+  AIC = c(AIC(logistic_null), AIC(logistic_1), AIC(logistic_2), AIC(logistic_3), AIC(logistic_model)),
+  BIC = c(BIC(logistic_null), BIC(logistic_1), BIC(logistic_2), BIC(logistic_3), BIC(logistic_model))
+)
+
+# Affichage des résultats
+print(model_comparison)
+
+
+
+#### model residuals
+# library(DHARMa)
+# 
+# # Simuler les résidus pour un modèle GLMM
+# simulated_residuals <- simulateResiduals(logistic_model)
+# 
+# # Visualisation des résidus
+# plot(simulated_residuals)  # Produit plusieurs graphiques utiles
+
+
+# exploratory part for further understanding of eriam effect
+
+# modeleglm1 <- glmer(Accuracy_scaled ~ 1 + (1|Subject),
+#             family = gaussian,
+#             data = dfglmlong2)
+# 
+# modeleglm2 <- glmer(Accuracy_scaled ~ span * charge * Condition + (1|Subject),
+#             family = gaussian,
+#             data = dfglmlong2)
+# 
+# visualize(modeleglm2, formula = Accuracy_scaled ~ charge + span | Condition, plot = "residuals")
+# estimates_modnull <- estimates(modeleglm1)
+# estimates_modglm <- estimates(modeleglm2)
+# modelLLM_summary <- summary(modeleglm2)
+# modelglmconfint<-confint(modeleglm2)
+
+# next lines are to give more informations and some has been used for inline
+# coef(modeleglm2)
+# report(modeleglm2)
+# report(modeleglm3)
+# flexplot(eriam_scaled~Condition+charge|span, data = dfglmlong2)
+# compareglm <- model.comparison(modeleglm1, modeleglm2)
+```
+
+
+```{r}
+# Charger les bibliothèques nécessaires
+library(lme4)
+library(BayesFactor)
+library(dplyr)
+
+# Créer le dataframe logistic
+logistic <- data_grouped %>%
+  transmute(
+    Subject,
+    flanker = ifelse(erreur_flanker == 0, "flanker_error", "flanker_correct"),
+    Accuracy = ifelse(CollectResponse1.ACC == 0, "memory_error", "memory_correct"),
+    Span = ifelse(moyNdigit < 7, "lowspan", "highspan"),
+    LOAD = ifelse(Ndigit <= first_Ndigit, "moderate", "increased")
+  )
+
+# Charger les packages nécessaires
+library(brms)
+library(loo)
+
+# Création des modèles Bayésiens avec save_pars = save_pars(all = TRUE)
+
+# 1. Modèle nul (intercept seulement)
+model_null_bayes <- brm(Accuracy ~ 1 + (1 | Subject), 
+                        data = logistic, 
+                        family = bernoulli(), 
+                        chains = 4, iter = 2000, 
+                        save_pars = save_pars(all = TRUE))
+
+# 2. Modèle avec Span seul
+model_1_bayes <- brm(Accuracy ~ Span + (1 | Subject), 
+                      data = logistic, 
+                      family = bernoulli(), 
+                      chains = 4, iter = 2000, 
+                      save_pars = save_pars(all = TRUE))
+
+# 3. Modèle avec Span + LOAD
+model_2_bayes <- brm(Accuracy ~ Span + LOAD + (1 | Subject), 
+                      data = logistic, 
+                      family = bernoulli(), 
+                      chains = 4, iter = 2000, 
+                      save_pars = save_pars(all = TRUE))
+
+# 4. Modèle avec Span + LOAD + flanker
+model_3_bayes <- brm(Accuracy ~ Span + LOAD + flanker + (1 | Subject), 
+                      data = logistic, 
+                      family = bernoulli(), 
+                      chains = 4, iter = 2000, 
+                      save_pars = save_pars(all = TRUE))
+
+# 5. Modèle avec interaction Span * LOAD
+model_4_bayes <- brm(Accuracy ~ Span * LOAD + flanker + (1 | Subject), 
+                      data = logistic, 
+                      family = bernoulli(), 
+                      chains = 4, iter = 2000, 
+                      save_pars = save_pars(all = TRUE))
+
+# 6. Modèle complet avec toutes les interactions (Span * LOAD * flanker)
+model_full_bayes <- brm(Accuracy ~ Span * LOAD * flanker + (1 | Subject), 
+                         data = logistic, 
+                         family = bernoulli(), 
+                         chains = 4, iter = 2000, 
+                         save_pars = save_pars(all = TRUE))
+
+# Comparaison des modèles avec LOO, AIC et BIC
+loo_null <- loo(model_null_bayes)
+loo_1 <- loo(model_1_bayes)
+loo_2 <- loo(model_2_bayes)
+loo_3 <- loo(model_3_bayes)
+loo_4 <- loo(model_4_bayes)
+loo_full <- loo(model_full_bayes)
+
+# Comparer les modèles avec loo_compare()
+model_comparison <- loo_compare(loo_null, loo_1, loo_2, loo_3, loo_4, loo_full)
+
+# Afficher les résultats
+print(model_comparison)
+
+# Calcul des Facteurs de Bayes pour comparer les modèles
+bf_1 <- bayes_factor(model_null_bayes, model_1_bayes)
+bf_2 <- bayes_factor(model_1_bayes, model_2_bayes)
+bf_3 <- bayes_factor(model_2_bayes, model_3_bayes)
+bf_4 <- bayes_factor(model_3_bayes, model_4_bayes)
+bf_full <- bayes_factor(model_4_bayes, model_full_bayes)
+
+# Regrouper les résultats des facteurs de Bayes dans un tableau
+bf_results <- data.frame(
+  Model_Comparison = c("Null vs Span", "Span vs Span+LOAD", "Span+LOAD vs Span+LOAD+flanker",
+                       "Span*LOAD vs Span*LOAD+flanker", "Full Model"),
+  Bayes_Factor = c(bf_1$bf, bf_2$bf, bf_3$bf, bf_4$bf, bf_full$bf)
+)
+
+print(bf_results)
+
+########## visualisation
+
+# Prédictions du modèle bayésien
+library(tidyverse)
+library(brms)
+
+# Prédictions du modèle bayésien sans messages d'avertissement
+predictions_bayes <- logistic %>%
+  mutate(predicted = fitted(model_full_bayes, scale = "response", silent = TRUE)[, "Estimate"])
+
+# Graphique des effets d'interaction basé sur model_full_bayes
+ggplot(predictions_bayes, aes(x = LOAD, y = predicted, color = flanker, group = flanker)) +
+  geom_point(position = position_jitter(width = 0.1), alpha = 0.5) +  # Points avec jitter
+  geom_smooth(method = "glm", se = TRUE) +  # Courbes de tendance avec intervalle de confiance
+  facet_wrap(~ Span) +  # Séparation selon Span
+  labs(x = "Cognitive Load",
+       y = "Predicted Accuracy (Bayesian Model)",
+       color = "Flanker Response") +
+  scale_color_manual(values = c("flanker_correct" = "lightgreen", "flanker_error" = "#F78B8B")) +  # Couleurs personnalisées
+  theme_minimal(base_size = 14) +
+  theme(text = element_text(family = "Times New Roman"),
+        plot.title = element_text(hjust = 0.5))  # Centrer le titre
+
+```
+
+Again, *ICC* = `r round(estimates_modnull[["icc"]][["icc"]],2)`, indicates strong data dependency within subject and design effect = `r round(estimates_modnull[["icc"]][["design.effect"]],2)`. Model REML is `r round(modelLLM_summary[["AICtab"]],2)`. Compared to the *null model*, the model with predictors exhibits a significantly improved fit to the data. *AIC* = `r round(compareglm[["statistics"]][["aic"]][1],2)` for the *null model* and *AIC* = `r round(compareglm[["statistics"]][["aic"]][2],2)` for the model with predictors while *BIC* = `r round(compareglm[["statistics"]][["bic"]][1],2)` and `r round(compareglm[["statistics"]][["aic"]][2],2)` respectively for *null model* and model with predictors. Finally, *Bayes Factor* overwhelmingly favored model with predictors, *Bf~10~* = `r format(compareglm[["statistics"]][["bayes.factor"]][2], scientific = TRUE, digits = 2)`, *p* \< .001. Residuals visually do not differ from a normal distribution. The model's total explanatory power is substantial (conditional *R^2^* = 0.77) and the part related to the fixed effects alone (marginal *R^2^*) is of 0.29. The model's intercept, corresponding to span = lowspan, charge = moderate and Condition = Correct, is at `r round(estimates_modglm[["fixed"]][["(Intercept)"]],2)` (95% CI \[`r round(modelglmconfint[3,1],2)`, `r round(modelglmconfint[3,2],2)`\], *t*(192) = 5.96, *p* \< .001). Accuracy values are standardized, hereafter we only report standardized *beta* coefficients for better visibility. Within this model:
+
+-   The effect of span \[highspan\] is statistically significant and negative, *t*(192) = -4.57, *p* \< .001; *Std. beta* = -1.11, 95% CI \[-1.58, -0.63\])
+-   The effect of charge \[increased\] is statistically significant and negative, *t*(192) = -7.15, *p* \< .001; *Std. beta* = -1.08, 95% CI \[-1.38, -0.78\])
+-   The effect of Condition \[Error\] is statistically significant and negative, *t*(192) = -3.60, *p* \< .001; *Std. beta* = -0.54, 95% CI \[-0.83, -0.24\])
+-   The effect of span \[highspan\] × charge \[increased\] is statistically significant and positive, *t*(192) = 2.24, *p* = 0.026; *Std. beta* = 0.46, 95% CI \[0.06, 0.87\])
+-   The effect of span \[highspan\] × Condition \[Error\] is statistically non-significant and positive, *t*(192) = 1.56, p = 0.122; *Std. beta* = 0.30, 95% CI \[-0.08, 0.69\])
+-   The effect of charge \[increased\] × Condition \[Error\] is statistically non-significant and positive, *t*(192) = 1.08, p = 0.279; *Std. beta* = 0.23, 95% CI \[-0.19, 0.65\])
+-   The effect of (span \[highspan\] × charge \[increased\]) × Condition \[Error\] is statistically non-significant and negative, *t*(192) = -0.80, *p* = 0.426; *Std. beta* = -0.23, 95% CI \[-0.80, 0.34\]) 95% Confidence Intervals (CIs) and p-values were computed using a Wald t-distribution approximation.
+
+```{r echo=FALSE}
+# Create a data frame with the results
+resultsglm <- data.frame(
+  Effect = c("span [highspan]", "charge [increased]", "Condition [Error]",
+             "span [highspan] × charge [increased]", 
+             "span [highspan] × Condition [Error]", 
+             "charge [increased] × Condition [Error]", 
+             "(span [highspan] × charge [increased]) × Condition [Error]"),
+  Test = c("t(192) = -4.57, p < .001", "t(192) = -7.15, p < .001", "t(192) = -3.60, p < .001",
+           "t(192) = 2.24, p = 0.026", "t(192) = 1.56, p = 0.122", 
+           "t(192) = 1.08, p = 0.279", "t(192) = -0.80, p = 0.426"),
+  `Std. beta` = c("-1.11", "-1.08", "-0.54", "0.46", "0.30", "0.23", "-0.23"),
+  `95% CI` = c("[-1.58, -0.63]", "[-1.38, -0.78]", "[-0.83, -0.24]", "[0.06, 0.87]",
+               "[-0.08, 0.69]", "[-0.19, 0.65]", "[-0.80, 0.34]")
+)
+
+# Print the results in APA format
+apa_table(resultsglm, caption = "Summary of mixed model on accuracy",placement ="h",font_size = "small", resize_mode = "resize_columns", note = "For every effect tested, t test and pvalue, standardized beta coefficient and 95% CI are mentioned")
+```
+
+**Figure 6** represent response accuracy according to group span (high and low span) and working memory load (moderate and increased load). Following our model results, increasing the cognitive load has a significant negative effect on digit span accuracy. Then, error made on the conflict task also significantly impair accuracy, arguing again for the ERIAM effect. Finally, increasing cognitive load in *high span* does not impact accuracy level as in *low span* group.
+
+**Figure 6: Accuracy on Working Memory task**
+
+```{r echo=FALSE}
+##### graphe des effets par condition
+
+########
+panel5 <- bind_rows(
+  dfglmlong %>% 
+    filter(span == "lowspan") %>% 
+    mutate(span = "lowspan"),
+  dfglmlong %>% 
+    filter(span == "highspan") %>% 
+    mutate(span = "highspan")
+)
+
+
+ggplot(panel5, aes(x = charge, y = mean_accuracy, shape = Condition, color = Condition, group = interaction(charge, Condition))) +
+  geom_errorbar(aes(ymin = mean_accuracy - sd_accuracy / sqrt(n),
+                    ymax = mean_accuracy + sd_accuracy / sqrt(n)),
+                width = 0.1,
+                position = position_dodge(width = 0.5)) +
+  geom_point(size = 3, fill = "black",
+             position = position_dodge(width = 0.5)) +
+  geom_line(aes(group = Condition),
+            linetype = "dashed",
+            color = "black",
+            position = position_dodge(width = 0.5)) +
+  scale_shape_manual(values = c("Error" = 16, "Correct" = 1)) +
+  scale_color_manual(values = c("Error" = "black", "Correct" = "black")) +
+  labs(x = "Cognitive load", y = "Accuracy") +
+  theme_apa() +
+  facet_wrap(~span, scales = "fixed")
+```
+
+## Hypothesis 3 testing
+
+As mentioned in our preregistration [@brochet2022], we then check for correlation between ERIAM and WMC as in @wessel2021b. In **Table 3** are represented ERIAM and correlation ERIAM/WMC in both groups of participants within level of cognitive load. Remember that our alpha threshold for significance is set to .029 due to Pocock correction. With this precision, we see that ERIAM effect seems to be significant only in *high span*/*increased load* and *low span*/*moderate load*, and correlation ERIAM/WMC is significant in low span group in increased load condition. Our third hypothesis cannot be corroborated by data we collected. We cannot say that ERIAM/WMC correlation significantly increase in high span group within cognitive load as linear link does not yield significativity. Nethertheless, in low span group, the linear relation between ERIAM/WMC become significant as cognitive load increase.
+
+```{r}
+#| eval: false
+#| include: false
+# steiger test to compare dependant correlation
+
+# library(cocor)
+# > 
+# > # Définition des corrélations et tailles d'échantillon
+# > rho_mod <- 0.24  # Corrélation en condition moderate load
+# > rho_inc <- -0.11  # Corrélation en condition increased load
+# > n_mod <- 31  # Taille de l'échantillon en condition moderate load
+# > n_inc <- 23  # Taille de l'échantillon en condition increased load
+# > 
+# > # Comparaison des corrélations dépendantes avec le test de Steiger
+# > cocor.dep.groups.overlap(r.jk = rho_mod, r.jh = rho_inc, r.kh = 0, n = min(n_mod, n_inc))
+```
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, paged.print=TRUE}
+df9 <- rbind(df5, df6, df7, df8)  # Combine all dataframes into one
+df9 <- df9[df9$eriam != 0 & !is.na(df9$eriam), ]
+
+
+eriam_summary <- df9 %>%
+  group_by(span, charge) %>%
+  summarize(
+    ERIAM = round(mean(eriam, na.rm = TRUE), 2),
+    n = sum(!is.na(eriam)),  # Nombre de valeurs non NA pour calculer SE
+    SE = round(sd(eriam, na.rm = TRUE) / sqrt(n), 2),  # Erreur standard (SE)
+    pvalue = round(t.test(eriam)$p.value, 3)  # Test t pour p-value
+  )
+
+
+
+cor_summary <- df9 %>%
+  group_by(span, charge) %>%
+  summarize(ERIAM_WMC = round(cor(eriam, WMC, method = "spearman", use = "pairwise.complete.obs"), 2),
+            p = format_p(cor.test(eriam, WMC, method = "spearman")$p.value))
+
+WMC_summary <- df9 %>%
+  group_by(span, charge) %>%  
+  summarise(
+    Mean_WMC = round(mean(WMC, na.rm = TRUE), 2),  # Moyenne de WMC
+    n_WMC = sum(!is.na(WMC)),  # Nombre de valeurs non NA
+    se_WMC = ifelse(n_WMC > 1, round(sd(WMC, na.rm = TRUE) / sqrt(n_WMC), 2), NA),  # Écart-type sur WMC
+    IC_95 = ifelse(!is.na(se_WMC), 
+                   paste0("[", round(Mean_WMC - 1.96 * se_WMC, 2), ", ", round(Mean_WMC + 1.96 * se_WMC, 2), "]"), 
+                   "[NA, NA]")
+  )
+
+
+
+# Fusionner eriam_summary et cor_summary d'abord
+merged_summary <- merge(eriam_summary, cor_summary, by = c("span", "charge"))
+
+# Puis fusionner avec WMC_summary
+merged_summary <- merge(merged_summary, WMC_summary, by = c("span", "charge"))
+merged_summary <- merged_summary %>%
+  rename(group = span, CL = charge)
+
+################# corrélation WMC/ERIAM groupe entier
+dfcorall<-data_grouped %>%
+  group_by(Subject) %>% 
+  mutate(
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    eriam = Mean_Mem_correct - Mean_Mem_erreur,
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE)) %>% 
+  ungroup() %>%
+  distinct(Subject, .keep_all = TRUE) %>%
+  summarize(ERIAM_WMC = cor(eriam, WMC, use = "pairwise.complete.obs"),
+            f_value = cor.test(eriam, WMC)$statistic,
+            p = cor.test(eriam, WMC)$p.value,
+            df = cor.test(eriam, WMC)$parameter[1])
+###################################### low span
+dfcorlow<-data_grouped %>%
+  filter(first_Ndigit<7) %>% 
+  group_by(Subject) %>% 
+  mutate(
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    eriam = Mean_Mem_correct - Mean_Mem_erreur,
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE)) %>% 
+  ungroup() %>%
+  distinct(Subject, .keep_all = TRUE) %>%
+  summarize(ERIAM_WMC = cor(eriam, WMC, use = "pairwise.complete.obs"),
+            f_value = cor.test(eriam, WMC)$statistic,
+            p = cor.test(eriam, WMC)$p.value,
+            df = cor.test(eriam, WMC)$parameter[1])
+################################################## high span
+dfcorhigh<-data_grouped %>%
+  filter(first_Ndigit>=7) %>% 
+  group_by(Subject) %>% 
+  mutate(
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    eriam = Mean_Mem_correct - Mean_Mem_erreur,
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE)) %>% 
+  ungroup() %>%
+  distinct(Subject, .keep_all = TRUE) %>%
+  summarize(ERIAM_WMC = cor(eriam, WMC, use = "pairwise.complete.obs"),
+            f_value = cor.test(eriam, WMC)$statistic,
+            p = cor.test(eriam, WMC)$p.value,
+            df = cor.test(eriam, WMC)$parameter[1])
+#########################
+gt(merged_summary, caption = "ERIAM effect and correlation ERIAM/WMC in high and low span groups according to cognitive load(CL)")
+
+```
+
+```{r}
+# library(MASS)  # Pour la génération de données multivariées
+# 
+# # Fonction de simulation avec bootstrap
+# Simulation <- function(nRep, nSub, means, rSample, rS, rTol) {
+#   
+#   # Définir la matrice de covariance
+#   sigma <- matrix(c(1, rSample * sqrt(rS[2] / rS[1]), 
+#                     rSample * sqrt(rS[2] / rS[1]), rS[2] / rS[1]), 
+#                   nrow = 2, ncol = 2)
+#   
+#   # Générer UNE SEULE FOIS les données simulées
+#   d <- mvrnorm(n = nSub, mu = means / rS[1], Sigma = sigma)
+#   
+#   # Transformation des variables
+#   x <- d[, 1] - d[, 2]
+#   y <- (d[, 1] + d[, 2]) / 2
+#   
+#   # Initialisation du vecteur des corrélations
+#   r <- numeric(nRep)
+# 
+#   # Boucle de rééchantillonnage bootstrap
+#   for (i in 1:nRep) {
+#     # Tirer des indices aléatoires (bootstrap)
+#     idx <- sample(1:nSub, nSub, replace = TRUE)
+#     
+#     # Sélectionner les échantillons
+#     x1 <- x[idx]
+#     y1 <- y[idx]
+#     
+#     # Calculer la corrélation pour cet échantillon bootstrap
+#     r[i] <- cor(x1, y1)
+#   }
+#   
+#   # Retourner les résultats
+#   return(list(r = r))
+# }
+# 
+# ##################
+# base5_clean <- na.omit(base5[, c("delta_mean", "WMC", "Mean_Mem_erreur", "Mean_Mem_correct","NDigit")])
+# ################
+# 
+# 
+# # Extraire les colonnes 'eriam' et 'WMC'
+# eriam <- base5_clean$delta_mean
+# WMC <- base5_clean$WMC
+# 
+# # Calculer les moyennes et les variances
+# means <- c(mean(eriam), mean(WMC))
+# rS <- c(var(eriam), var(WMC))
+# 
+# # Corrélation empirique
+# cor_empirical <- cor(eriam, WMC)
+# 
+# # Paramètre de tolérance
+# rTol <- 0.01
+# 
+# # Nombre de simulations
+# nSimulations <- 50000
+# nSub <- length(eriam)
+# 
+# # Appeler la fonction Simulation
+# resultats <- Simulation(nRep = nSimulations, nSub = nSub, means = means, 
+#                         rSample = cor_empirical, rS = rS, rTol = rTol)
+# 
+# # Calculer la p-value empirique (proportion des corrélations simulées ≥ corrélation empirique)
+# p_value_empirical <- mean(resultats$r >= cor_empirical)
+# 
+# # Afficher les résultats
+# cat("Corrélation empirique :", round(cor_empirical, 4), "\n")
+# cat("P-value empirique :", round(p_value_empirical, 4), "\n")
+# 
+# # Calculate the limits for the x-axis, including the empirical correlation
+# x_min <- min(resultats$r, cor_empirical)
+# x_max <- max(resultats$r, cor_empirical)
+# 
+# # Adjust the range to ensure a 0.1 interval
+# x_min <- floor(x_min / 0.1) * 0.1
+# x_max <- ceiling(x_max / 0.1) * 0.1
+# 
+# # Plot the density curve with a black line
+# dens <- density(resultats$r)  # Calcul de la densité
+# plot(dens, main = "Bootstrap Distribution of Simulated Correlations", 
+#      xlab = "Simulated Correlation", col = "black", lwd = 2, 
+#      xlim = c(x_min, x_max), bty = "n")  # Courbe de densité avec ligne noire
+# 
+# # Fill the area under the density curve with green
+# polygon(dens, col = "lightgreen", border = NA)  # Remplissage vert avec transparence
+# 
+# # Add a red line for the empirical correlation
+# abline(v = cor_empirical, col = "red", lwd = 2, lty = 2)
+# 
+# # Add the custom x-axis with 0.1 intervals
+# axis(1, at = seq(x_min, x_max, by = 0.1))  # 0.1 interval graduation
+# 
+# # Format the p-value in APA style (e.g., p < .001)
+# p_value_apa <- ifelse(p_value_empirical < 0.001, "p < .001", paste("p =", round(p_value_empirical, 3)))
+# 
+# # Add the legend with the formatted p-value and empirical correlation next to it
+# legend("topright", legend = c(paste("Empirical Correlation = ", round(cor_empirical, 2)), p_value_apa), 
+#        col = c("black", "black"), bty = "n", cex = 1.2, text.col = "black")
+
+```
+
+
+```{r}
+# ######## avec groupe span
+# library(MASS)  # Pour la génération de données multivariées
+# 
+# # Fonction de simulation avec bootstrap
+# Simulation <- function(nRep, nSub, means, rSample, rS, rTol) {
+#   
+#   # Définir la matrice de covariance
+#   sigma <- matrix(c(1, rSample * sqrt(rS[2] / rS[1]), 
+#                     rSample * sqrt(rS[2] / rS[1]), rS[2] / rS[1]), 
+#                   nrow = 2, ncol = 2)
+#   
+#   # Générer UNE SEULE FOIS les données simulées
+#   d <- mvrnorm(n = nSub, mu = means / rS[1], Sigma = sigma)
+#   
+#   # Transformation des variables
+#   x <- d[, 1] - d[, 2]
+#   y <- (d[, 1] + d[, 2]) / 2
+#   
+#   # Initialisation du vecteur des corrélations
+#   r <- numeric(nRep)
+# 
+#   # Boucle de rééchantillonnage bootstrap
+#   for (i in 1:nRep) {
+#     # Tirer des indices aléatoires (bootstrap)
+#     idx <- sample(1:nSub, nSub, replace = TRUE)
+#     
+#     # Sélectionner les échantillons
+#     x1 <- x[idx]
+#     y1 <- y[idx]
+#     
+#     # Calculer la corrélation pour cet échantillon bootstrap
+#     r[i] <- cor(x1, y1)
+#   }
+#   
+#   # Retourner les résultats
+#   return(list(r = r))
+# }
+# 
+# ##################
+# base5_clean <- na.omit(base5[, c("delta_mean", "WMC", "Mean_Mem_erreur", "Mean_Mem_correct", "NDigit")])
+# ################
+# 
+# # Extraire les colonnes 'eriam' et 'WMC'
+# eriam <- base5_clean$delta_mean
+# WMC <- base5_clean$WMC
+# 
+# # Diviser en 3 groupes : All, Low Span, High Span
+# low_span <- base5_clean$NDigit < 7
+# high_span <- base5_clean$NDigit >= 7
+# 
+# # Calculer les moyennes et variances
+# means <- c(mean(eriam), mean(WMC))
+# rS <- c(var(eriam), var(WMC))
+# 
+# # Paramètre de tolérance
+# rTol <- 0.01
+# 
+# # Nombre de simulations
+# nSimulations <- 50000
+# nSub <- length(eriam)
+# 
+# # Corrélation empirique pour l'ensemble des données
+# cor_empirical <- cor(eriam, WMC)
+# 
+# # Appeler la fonction Simulation pour l'ensemble du groupe
+# resultats <- Simulation(nRep = nSimulations, nSub = nSub, means = means, 
+#                         rSample = cor_empirical, rS = rS, rTol = rTol)
+# 
+# # Calculer la p-value empirique (proportion des corrélations simulées ≥ corrélation empirique)
+# p_value_empirical <- mean(resultats$r >= cor_empirical)
+# 
+# # Corrélation empirique pour Low Span
+# cor_empirical_low <- cor(eriam[low_span], WMC[low_span])
+# resultats_low <- Simulation(nRep = nSimulations, nSub = sum(low_span), means = means, 
+#                             rSample = cor_empirical_low, rS = rS, rTol = rTol)
+# p_value_empirical_low <- mean(resultats_low$r >= cor_empirical_low)
+# 
+# # Corrélation empirique pour High Span
+# cor_empirical_high <- cor(eriam[high_span], WMC[high_span])
+# resultats_high <- Simulation(nRep = nSimulations, nSub = sum(high_span), means = means, 
+#                              rSample = cor_empirical_high, rS = rS, rTol = rTol)
+# p_value_empirical_high <- mean(resultats_high$r >= cor_empirical_high)
+# 
+# # Afficher les résultats
+# cat("Corrélation empirique (ensemble) :", round(cor_empirical, 4), "\n")
+# cat("P-value empirique (ensemble) :", round(p_value_empirical, 4), "\n")
+# cat("Corrélation empirique (Low Span) :", round(cor_empirical_low, 4), "\n")
+# cat("P-value empirique (Low Span) :", round(p_value_empirical_low, 4), "\n")
+# cat("Corrélation empirique (High Span) :", round(cor_empirical_high, 4), "\n")
+# cat("P-value empirique (High Span) :", round(p_value_empirical_high, 4), "\n")
+# 
+# # Calculer les limites pour l'axe des x, y compris la corrélation empirique
+# x_min <- min(c(resultats$r, resultats_low$r, resultats_high$r, cor_empirical, cor_empirical_low, cor_empirical_high))
+# x_max <- max(c(resultats$r, resultats_low$r, resultats_high$r, cor_empirical, cor_empirical_low, cor_empirical_high))
+# 
+# # Ajuster la plage pour garantir un intervalle de 0.1
+# x_min <- floor(x_min / 0.1) * 0.1
+# x_max <- ceiling(x_max / 0.1) * 0.1
+# library(geomtextpath)
+# # Tracer la courbe de densité pour l'ensemble des données avec une ligne noire
+# dens <- density(resultats$r)  # Calcul de la densité
+# plot(dens, main = "Distribution of Simulated Correlations and Observed Correlations", 
+#      xlab = "Correlation", col = "lightgreen", lwd = 2, 
+#      xlim = c(x_min, x_max), bty = "n")  # Courbe de densité avec ligne noire
+# 
+# # Remplir la zone sous la courbe de densité avec du vert
+# polygon(dens, col = "lightgreen", border = NA)  # Remplissage vert avec transparence
+# 
+# # Tracer la courbe de densité pour Low Span (ligne bleue)
+# dens_low <- density(resultats_low$r)
+# lines(dens_low, col = "blue", lwd = 2)  # Ligne bleue pour Low Span
+# polygon(dens_low, col = rgb(0, 0, 1, 0.2), border = NA)  # Remplissage bleu transparent
+# 
+# # Tracer la courbe de densité pour High Span (ligne rouge)
+# dens_high <- density(resultats_high$r)
+# lines(dens_high, col = "red", lwd = 2)  # Ligne rouge pour High Span
+# polygon(dens_high, col = rgb(1, 0, 0, 0.2), border = NA)  # Remplissage rouge transparent
+# 
+# # Ajouter les lignes verticales pour les corrélations empiriques
+# abline(v = cor_empirical, col = "lightgreen", lwd = 2, lty = 2)  # Ligne noire pour l'ensemble
+# abline(v = cor_empirical_low, col = "blue", lwd = 2, lty = 2)  # Ligne bleue pour Low Span
+# abline(v = cor_empirical_high, col = "red", lwd = 2, lty = 2)  # Ligne rouge pour High Span
+# 
+# # Ajouter l'axe des x avec des intervalles de 0.1
+# axis(1, at = seq(x_min, x_max, by = 0.2))  # Graduation de 0.1
+# 
+# # Format p-values selon les normes APA
+# p_value_apa <- ifelse(p_value_empirical < 0.001, "p < .001", paste("p = ", round(p_value_empirical, 3)))
+# p_value_apa_low <- ifelse(p_value_empirical_low < 0.001, "p < .001", paste("p = ", round(p_value_empirical_low, 3)))
+# p_value_apa_high <- ifelse(p_value_empirical_high < 0.001, "p < .001", paste("p = ", round(p_value_empirical_high, 3)))
+# 
+# # Ajouter la légende sous l'axe des abscisses (positionnée en dehors du graphique)
+# legend("topleft", 
+#        legend = c("Observed correlations", 
+#                   paste("All: r(53) = ", round(cor_empirical, 2), ", ", p_value_apa),
+#                   paste("Low Span: r(21) = ", round(cor_empirical_low, 2), ", ", p_value_apa_low),
+#                   paste("High Span: r(31) = ", round(cor_empirical_high, 2), ", ", p_value_apa_high)),
+#        col = c("white", "lightgreen", "blue", "red"), 
+#        lty = c(2, 2, 2), 
+#        lwd = 2, 
+#        bty = "n", 
+#        cex = 0.7, 
+#        text.col = "black")
+
+
+```
+
+```{r}
+# library(MASS)  # Pour la génération de variables aléatoires multinormales
+# 
+# Simulation <- function(nRep, nSub, means, rSample, rS, rTol) {
+#   # Définir la matrice de covariance
+#   sigma <- matrix(c(1, rSample * sqrt(rS[2] / rS[1]), 
+#                     rSample * sqrt(rS[2] / rS[1]), rS[2] / rS[1]), 
+#                   nrow = 2, ncol = 2)
+#   
+#   # Générer les données simulées
+#   d <- mvrnorm(n = nSub, mu = means / rS[1], Sigma = sigma)
+#   
+#   # Transformation des variables
+#   x <- d[, 1] - d[, 2]  # ERIAM
+#   y <- (d[, 1] + d[, 2]) / 2  # WMC
+#   
+#   # Initialisation du vecteur des corrélations
+#   r <- numeric(nRep)
+#   
+#   # Boucle de rééchantillonnage bootstrap
+#   for (i in 1:nRep) {
+#     idx <- sample(1:nSub, nSub, replace = TRUE)
+#     x1 <- x[idx]
+#     y1 <- y[idx]
+#     r[i] <- cor(x1, y1)
+#   }
+#   
+#   return(list(r = r))
+# }
+# 
+# ##################
+# base5_clean <- na.omit(base5[, c("Mean_Mem_erreur", "Mean_Mem_correct", "NDigit")])
+# ################
+# 
+# # Calcul des nouvelles variables
+# eriam <- base5_clean$Mean_Mem_correct - base5_clean$Mean_Mem_erreur  # ERIAM
+# WMC <- (base5_clean$Mean_Mem_correct + base5_clean$Mean_Mem_erreur) / 2  # WMC
+# 
+# # Diviser en groupes Low Span et High Span
+# low_span <- base5_clean$NDigit < 7
+# high_span <- base5_clean$NDigit >= 7
+# 
+# # Calculer les moyennes et variances
+# means <- c(mean(eriam), mean(WMC))
+# rS <- c(var(eriam), var(WMC))
+# 
+# # Paramètre de tolérance
+# rTol <- 0.01
+# 
+# # Nombre de simulations
+# nSimulations <- 50000
+# nSub <- length(eriam)
+# 
+# # Corrélation empirique pour l'ensemble des données
+# cor_empirical <- cor(eriam, WMC)
+# 
+# # Appeler la fonction Simulation
+# resultats <- Simulation(nRep = nSimulations, nSub = nSub, means = means, 
+#                         rSample = cor_empirical, rS = rS, rTol = rTol)
+# 
+# # Calculer la p-value empirique
+# p_value_empirical <- mean(resultats$r >= cor_empirical)
+# 
+# # Corrélation empirique pour Low Span
+# cor_empirical_low <- cor(eriam[low_span], WMC[low_span])
+# resultats_low <- Simulation(nRep = nSimulations, nSub = sum(low_span), means = means, 
+#                             rSample = cor_empirical_low, rS = rS, rTol = rTol)
+# p_value_empirical_low <- mean(resultats_low$r >= cor_empirical_low)
+# 
+# # Corrélation empirique pour High Span
+# cor_empirical_high <- cor(eriam[high_span], WMC[high_span])
+# resultats_high <- Simulation(nRep = nSimulations, nSub = sum(high_span), means = means, 
+#                              rSample = cor_empirical_high, rS = rS, rTol = rTol)
+# p_value_empirical_high <- mean(resultats_high$r >= cor_empirical_high)
+# 
+# # Afficher les résultats
+# cat("Corrélation empirique (ensemble) :", round(cor_empirical, 4), "\n")
+# cat("P-value empirique (ensemble) :", round(p_value_empirical, 4), "\n")
+# cat("Corrélation empirique (Low Span) :", round(cor_empirical_low, 4), "\n")
+# cat("P-value empirique (Low Span) :", round(p_value_empirical_low, 4), "\n")
+# cat("Corrélation empirique (High Span) :", round(cor_empirical_high, 4), "\n")
+# cat("P-value empirique (High Span) :", round(p_value_empirical_high, 4), "\n")
+# 
+# # Calculer les limites pour l'axe des x, y compris la corrélation empirique
+# x_min <- min(c(resultats$r, resultats_low$r, resultats_high$r, cor_empirical, cor_empirical_low, cor_empirical_high))
+# x_max <- max(c(resultats$r, resultats_low$r, resultats_high$r, cor_empirical, cor_empirical_low, cor_empirical_high))
+# 
+# # Ajuster la plage pour garantir un intervalle de 0.1
+# x_min <- floor(x_min / 0.1) * 0.1
+# x_max <- ceiling(x_max / 0.1) * 0.1
+# library(geomtextpath)
+# # Tracer la courbe de densité pour l'ensemble des données avec une ligne noire
+# dens <- density(resultats$r)  # Calcul de la densité
+# plot(dens, main = "Distribution of Simulated Correlations and Observed Correlations", 
+#      xlab = "Correlation", col = "lightgreen", lwd = 2, 
+#      xlim = c(x_min, x_max), bty = "n")  # Courbe de densité avec ligne noire
+# 
+# # Remplir la zone sous la courbe de densité avec du vert
+# polygon(dens, col = "lightgreen", border = NA)  # Remplissage vert avec transparence
+# 
+# # Tracer la courbe de densité pour Low Span (ligne bleue)
+# dens_low <- density(resultats_low$r)
+# lines(dens_low, col = "blue", lwd = 2)  # Ligne bleue pour Low Span
+# polygon(dens_low, col = rgb(0, 0, 1, 0.2), border = NA)  # Remplissage bleu transparent
+# 
+# # Tracer la courbe de densité pour High Span (ligne rouge)
+# dens_high <- density(resultats_high$r)
+# lines(dens_high, col = "red", lwd = 2)  # Ligne rouge pour High Span
+# polygon(dens_high, col = rgb(1, 0, 0, 0.2), border = NA)  # Remplissage rouge transparent
+# 
+# # Ajouter les lignes verticales pour les corrélations empiriques
+# abline(v = cor_empirical, col = "lightgreen", lwd = 2, lty = 2)  # Ligne noire pour l'ensemble
+# abline(v = cor_empirical_low, col = "blue", lwd = 2, lty = 2)  # Ligne bleue pour Low Span
+# abline(v = cor_empirical_high, col = "red", lwd = 2, lty = 2)  # Ligne rouge pour High Span
+# 
+# # Ajouter l'axe des x avec des intervalles de 0.1
+# axis(1, at = seq(x_min, x_max, by = 0.2))  # Graduation de 0.1
+# 
+# # Format p-values selon les normes APA
+# p_value_apa <- ifelse(p_value_empirical < 0.001, "p < .001", paste("p = ", round(p_value_empirical, 3)))
+# p_value_apa_low <- ifelse(p_value_empirical_low < 0.001, "p < .001", paste("p = ", round(p_value_empirical_low, 3)))
+# p_value_apa_high <- ifelse(p_value_empirical_high < 0.001, "p < .001", paste("p = ", round(p_value_empirical_high, 3)))
+# 
+# # Ajouter la légende sous l'axe des abscisses (positionnée en dehors du graphique)
+# legend("topleft", 
+#        legend = c("Observed correlations", 
+#                   paste("All: r(53) = ", round(cor_empirical, 2), ", ", p_value_apa),
+#                   paste("Low Span: r(21) = ", round(cor_empirical_low, 2), ", ", p_value_apa_low),
+#                   paste("High Span: r(31) = ", round(cor_empirical_high, 2), ", ", p_value_apa_high)),
+#        col = c("white", "lightgreen", "blue", "red"), 
+#        lty = c(2, 2, 2), 
+#        lwd = 2, 
+#        bty = "n", 
+#        cex = 0.7, 
+#        text.col = "black")
+
+
+```
+
+```{r}
+library(MASS)  # Pour la génération de variables aléatoires multinormales
+library(dplyr) # Pour la manipulation des données
+
+# # Fonction de simulation
+Simulation <- function(nRep, nSub, means, rSample, rS, rTol) {
+  sigma <- matrix(c(1, rSample * sqrt(rS[2] / rS[1]),
+                    rSample * sqrt(rS[2] / rS[1]), rS[2] / rS[1]),
+                  nrow = 2, ncol = 2)
+   
+  d <- mvrnorm(n = nSub, mu = means / rS[1], Sigma = sigma)
+
+  x <- d[, 1] - d[, 2]  # ERIAM
+  y <- (d[, 1] + d[, 2]) / 2  # WMC
+
+  r <- numeric(nRep)
+
+  for (i in 1:nRep) {
+    idx <- sample(1:nSub, nSub, replace = TRUE)
+    x1 <- x[idx]
+    y1 <- y[idx]
+    r[i] <- cor(x1, y1)
+  }
+
+  return(list(r = r))
+}
+
+# Regrouper par sujet et ne conserver qu'une seule ligne par sujet
+df_unique <- dfcorallreg %>% 
+  group_by(Subject) %>% 
+  summarise(
+    Mean_Mem_erreur = mean(Mean_Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mean_Mem_correct, na.rm = TRUE),
+    NDigit = mean(moyNdigit, na.rm = TRUE)
+  ) %>% 
+  na.omit()
+df_unique <- df_unique %>% filter(eriam != 0)
+# Calcul des nouvelles variables
+eriam <- df_unique$Mean_Mem_correct - df_unique$Mean_Mem_erreur  # ERIAM
+WMC <- (df_unique$Mean_Mem_correct + df_unique$Mean_Mem_erreur) / 2  # WMC
+NDigit <- df_unique$NDigit
+
+# Groupes Low Span et High Span
+low_span <- df_unique$NDigit < 7
+high_span <- df_unique$NDigit >= 7
+
+# Moyennes et variances
+means <- c(mean(eriam), mean(WMC))
+rS <- c(var(eriam), var(WMC))
+rTol <- 0.01
+
+# Nombre de simulations
+nSimulations <- 50000
+nSub <- length(eriam)
+
+# Corrélation empirique
+cor_empirical <- cor(eriam, WMC, method = "spearman")
+
+# Simulation pour l'ensemble des sujets
+resultats <- Simulation(nRep = nSimulations, nSub = nSub, means = means,
+                        rSample = cor_empirical, rS = rS, rTol = rTol)
+
+p_value_empirical <- mean(resultats$r >= cor_empirical)
+
+# Simulation pour Low Span
+cor_empirical_low <- cor(eriam[low_span], WMC[low_span])
+resultats_low <- Simulation(nRep = nSimulations, nSub = sum(low_span), means = means,
+                            rSample = cor_empirical_low, rS = rS, rTol = rTol)
+p_value_empirical_low <- mean(resultats_low$r >= cor_empirical_low)
+
+# Simulation pour High Span
+cor_empirical_high <- cor(eriam[high_span], WMC[high_span])
+resultats_high <- Simulation(nRep = nSimulations, nSub = sum(high_span), means = means,
+                             rSample = cor_empirical_high, rS = rS, rTol = rTol)
+p_value_empirical_high <- mean(resultats_high$r >= cor_empirical_high)
+
+# Affichage des résultats
+cat("Corrélation empirique (ensemble) :", round(cor_empirical, 4), "\n")
+cat("P-value empirique (ensemble) :", round(p_value_empirical, 4), "\n")
+cat("Corrélation empirique (Low Span) :", round(cor_empirical_low, 4), "\n")
+cat("P-value empirique (Low Span) :", round(p_value_empirical_low, 4), "\n")
+cat("Corrélation empirique (High Span) :", round(cor_empirical_high, 4), "\n")
+cat("P-value empirique (High Span) :", round(p_value_empirical_high, 4), "\n")
+
+# Graphique de distribution des corrélations simulées
+x_min <- floor(min(c(resultats$r, resultats_low$r, resultats_high$r, cor_empirical, cor_empirical_low, cor_empirical_high)) / 0.1) * 0.1
+x_max <- ceiling(max(c(resultats$r, resultats_low$r, resultats_high$r, cor_empirical, cor_empirical_low, cor_empirical_high)) / 0.1) * 0.1
+
+dens <- density(resultats$r)
+plot(dens, main = NULL,
+     xlab = "Correlation", col = "lightgreen", lwd = 2,
+     xlim = c(x_min, x_max), bty = "n")
+polygon(dens, col = "lightgreen", border = NA)
+
+# dens_low <- density(resultats_low$r)
+# lines(dens_low, col = "blue", lwd = 2)
+# polygon(dens_low, col = rgb(0, 0, 1, 0.2), border = NA)
+# 
+# dens_high <- density(resultats_high$r)
+# lines(dens_high, col = "red", lwd = 2)
+# polygon(dens_high, col = rgb(1, 0, 0, 0.2), border = NA)
+
+abline(v = cor_empirical, col = "lightgreen", lwd = 2, lty = 2)
+# abline(v = cor_empirical_low, col = "blue", lwd = 2, lty = 2)
+# abline(v = cor_empirical_high, col = "red", lwd = 2, lty = 2)
+
+axis(1, at = seq(x_min, x_max, by = 0.2))
+
+p_value_apa <- ifelse(p_value_empirical < 0.001, "p < .001", paste("p = ", round(p_value_empirical, 3)))
+# p_value_apa_low <- ifelse(p_value_empirical_low < 0.001, "p < .001", paste("p = ", round(p_value_empirical_low, 3)))
+# p_value_apa_high <- ifelse(p_value_empirical_high < 0.001, "p < .001", paste("p = ", round(p_value_empirical_high, 3)))
+
+legend("topleft",
+       legend = c("Observed correlations",
+                  paste("All: r = ", round(cor_empirical, 2), ", ", p_value_apa),
+                  # paste("Low Span: r = ", round(cor_empirical_low, 2), ", ", p_value_apa_low),
+                  # paste("High Span: r = ", round(cor_empirical_high, 2), ", ", p_value_apa_high)),
+       # col = c("white", "lightgreen", "blue", "red"),
+       col = "lightgreen",
+       # lty = c(2, 2, 2),
+       lty = 2,
+       lwd = 2,
+       bty = "n",
+       cex = 0.9,
+       text.col = "black",
+       title="")
+# 
+# 
+# ###########################################
+# ######## test par permutation plus robuste
+set.seed(123)
+nPerm <- 10000
+perm_cor <- numeric(nPerm)
+
+for (i in 1:nPerm) {
+  perm_cor[i] <- cor(sample(eriam), WMC)
+}
+
+# Calcul du p-value empirique
+p_value_perm <- mean(perm_cor >= cor_empirical)
+
+# Affichage
+hist(perm_cor, breaks = 50, main = "Distribution permutation de la corrélation")
+abline(v = cor_empirical, col = "red", lwd = 2)
+print(paste("P-value permutation:", p_value_perm))
+
+
+
+############# essai approche robuste
+######################################
+
+# 1. Régression partielle : Ajustement d'ERIAM sur WMC
+lm_model <- lm(eriam ~ WMC)
+residus_eriam <- residuals(lm_model)
+
+# Corrélation entre les résidus et WMC
+cor_test_residus <- cor.test(residus_eriam, WMC, method = "pearson")
+
+# 2. Corrélation de Spearman
+cor_test_spearman <- cor.test(eriam, WMC, method = "spearman")
+#bootstrap for 95%CI
+spearman_cor <- function(data, indices) {
+  d <- data[indices, ]
+  return(cor(d$eriam, d$WMC, method = "spearman"))
+}
+
+# Prepare data
+data_df <- data.frame(eriam, WMC)
+
+# Bootstrap with 2000 resamples
+set.seed(123)  # For reproducibility
+boot_results <- boot(data_df, statistic = spearman_cor, R = 2000)
+
+# Compute 95% confidence interval
+ci <- boot.ci(boot_results, type = "perc")
+
+# Print results
+cat("Spearman correlation:", cor_test_spearman$estimate, "\n")
+cat("95% Confidence Interval:", ci$percent[4], "-", ci$percent[5], "\n")
+
+# 3. Comparaison des groupes extrêmes avec un test non paramétrique (Wilcoxon)
+low_span <- df_unique$NDigit < 7
+high_span <- df_unique$NDigit >= 7
+
+test_wilcoxon <- wilcox.test(eriam[low_span], eriam[high_span])
+
+# Résultats
+list(
+  correlation_residuals = cor_test_residus,
+  correlation_spearman = cor_test_spearman,
+  wilcoxon_test = test_wilcoxon
+)
+
+library(ggplot2)
+
+ggplot(df_unique, aes(x = WMC, y = eriam)) +
+  geom_point(alpha = 0.6) +  # Ajoute les points
+  geom_smooth(method = "lm", color = "black", se = TRUE) +  # Courbe de tendance lissée
+  theme_minimal() +
+  labs(title = "",
+       x = "WMC",
+       y = "ERIAM")
+
+
+lm_quad <- lm(eriam ~ WMC + I(WMC^2), data = df_unique)
+summary(lm_quad)
+
+
+library(quantreg)
+
+
+rq_model <- rq(eriam ~ WMC, tau = c(0.25, 0.5, 0.75), data = df_unique, method = "br")
+summary(rq_model)
+
+
+
+##############################
+#############################
+# Créer une fonction pour calculer les lignes de régression pour chaque tau
+predictions <- function(tau, rq_model, data) {
+  intercept <- coef(rq_model)[1, tau]
+  slope <- coef(rq_model)[2, tau]
+  return(intercept + slope * data$eriam)
+}
+
+# # Créer le graphique
+# ggplot(df_unique, aes(x = WMC, y = eriam)) +
+#   geom_point() +
+#   geom_smooth(method = "loess", color = "black", se = TRUE) +
+#   geom_abline(intercept = coef(rq_model)[1, 1], slope = coef(rq_model)[2, 1], color = "blue", linetype = "dashed") +
+#   geom_abline(intercept = coef(rq_model)[1, 2], slope = coef(rq_model)[2, 2], color = "green", linetype = "dashed") +
+#   geom_abline(intercept = coef(rq_model)[1, 3], slope = coef(rq_model)[2, 3], color = "red", linetype = "dashed") +
+#   labs(title = "",
+#        x = "WMC",
+#        y = "ERIAM") +
+#   theme_minimal() +
+#   scale_color_manual(values = c("blue", "green", "red")) +
+#   theme(legend.position = "none")
+
+ggplot(df_unique, aes(x = WMC, y = eriam)) +
+  # Ajout des points en noir avec une légère transparence
+  geom_point(color = "black", alpha = 0.6) +
+  # Régression lissée en noir avec IC 95%
+  geom_smooth(method = "loess", color = "black", se = TRUE) +
+  # Régressions quantiles avec styles différents
+  geom_abline(intercept = coef(rq_model)[1, 1], slope = coef(rq_model)[2, 1], 
+              linetype = "dotted", size = 1) +  # Quartile 25%
+  geom_abline(intercept = coef(rq_model)[1, 2], slope = coef(rq_model)[2, 2], 
+              linetype = "dashed", size = 1) +  # Médiane (50%)
+  geom_abline(intercept = coef(rq_model)[1, 3], slope = coef(rq_model)[2, 3], 
+              linetype = "solid", size = 0.8) +   # Quartile 75%
+  # Labels et thème en noir et blanc
+  labs(title = "",
+       x = "WMC",
+       y = "ERIAM") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
+library(ggExtra)
+
+# Créer le graphique principal avec la régression lissée et les lignes de régression quantiles
+main_plot <- ggplot(df_unique, aes(x = WMC, y = eriam)) +
+  # Ajout des points en noir avec une légère transparence
+  geom_point(color = "black", alpha = 0.6) +
+  # Régression lissée en noir avec IC 95%
+  geom_smooth(method = "loess", color = "black", se = TRUE) +
+  # Régressions quantiles avec styles différents
+  geom_abline(intercept = coef(rq_model)[1, 1], slope = coef(rq_model)[2, 1], 
+              linetype = "dotted", size = 1) +  # Quartile 25%
+  geom_abline(intercept = coef(rq_model)[1, 2], slope = coef(rq_model)[2, 2], 
+              linetype = "dashed", size = 1) +  # Médiane (50%)
+  geom_abline(intercept = coef(rq_model)[1, 3], slope = coef(rq_model)[2, 3], 
+              linetype = "solid", size = 0.8) +   # Quartile 75%
+  # Labels et thème en noir et blanc
+  labs(title = "",
+       x = "WMC",
+       y = "ERIAM") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+# Ajouter les densités sur les marges gauche et basse
+ggMarginal(main_plot, type = "density", margins = "both", fill = "lightgrey")
+```
+
+```{r}
+######### données Wessel
+Wessel <- read_delim("moy et sd sujets_Wessel.csv", 
+    delim = ";", escape_double = FALSE, col_types = cols(Mean_Mem_erreur = col_number(), 
+        Mean_Mem_correct = col_number()), 
+    trim_ws = TRUE)
+
+# Calcul des nouvelles variables
+eriamW <- (Wessel$Mean_Mem_correct - Wessel$Mean_Mem_erreur)/1000  # ERIAM
+WMCW <- ((Wessel$Mean_Mem_correct + Wessel$Mean_Mem_erreur) / 2)/1000  # WMC
+Wessel <- Wessel %>% filter(eriam != 0)
+
+# 1. Régression partielle : Ajustement d'ERIAM sur WMC
+lm_modelW <- lm(eriamW ~ WMCW)
+residus_eriamW <- residuals(lm_modelW)
+
+# Corrélation entre les résidus et WMC
+cor_test_residusW <- cor.test(residus_eriamW, WMCW, method = "pearson")
+
+# 2. Corrélation de Spearman
+cor_test_spearmanW <- cor.test(eriamW, WMCW, method = "spearman")
+
+
+
+ggplot(Wessel, aes(x = WMCW, y = eriamW)) +
+  geom_point(alpha = 0.6) +  # Ajoute les points
+  geom_smooth(method = "lm", color = "black", se = TRUE) +  # Courbe de tendance lissée
+  theme_minimal() +
+  labs(title = "Relation entre ERIAM et WMC",
+       x = "WMC",
+       y = "ERIAM")
+
+
+lm_quadW <- lm(eriamW ~ WMCW + I(WMCW^2), data = Wessel)
+summary(lm_quadW)
+
+
+library(quantreg)
+
+
+rq_modelW <- rq(eriamW ~ WMCW, tau = c(0.25, 0.5, 0.75), data = Wessel, method = "br")
+summary(rq_modelW)
+
+
+
+##############################
+#############################
+# Créer une fonction pour calculer les lignes de régression pour chaque tau
+predictionsW <- function(tau, rq_modelW, data) {
+  intercept <- coef(rq_model)[1, tau]
+  slope <- coef(rq_model)[2, tau]
+  return(intercept + slope * data$eriamW)
+}
+
+# Créer le graphique
+ggplot(Wessel, aes(x = WMCW, y = eriamW)) +
+  geom_point() + 
+  geom_abline(intercept = coef(rq_modelW)[1, 1], slope = coef(rq_modelW)[2, 1], color = "blue", linetype = "dashed") +
+  geom_abline(intercept = coef(rq_modelW)[1, 2], slope = coef(rq_modelW)[2, 2], color = "green", linetype = "dashed") +
+  geom_abline(intercept = coef(rq_modelW)[1, 3], slope = coef(rq_modelW)[2, 3], color = "red", linetype = "dashed") +
+  labs(title = "Régressions quantiles pour différentes valeurs de Tau (eriam ~ WMC)",
+       x = "WMC",
+       y = "eriam") +
+  theme_minimal() +
+  scale_color_manual(values = c("blue", "green", "red")) +
+  theme(legend.position = "none")
+
+
+```
+
+It is noteworthy that the ERIAM effect is only significant in lowspan group in the moderate cognitive load condition and in highspan group in the increased load condition. We will discuss this particular pattern.
+
+```{r}
+#| eval: false
+#| include: false
+#power
+
+pwr.r.test(r = 0.20, n = 31, sig.level = 0.029, alternative = "two.sided")
+pwr.r.test(r = 0.15, n = 32, sig.level = 0.029, alternative = "two.sided")
+pwr.r.test(r = 0.51, n = 21, sig.level = 0.029, alternative = "two.sided")
+pwr.r.test(r = 0.00, n = 22, sig.level = 0.029, alternative = "two.sided")
+
+#sample to achieve 80%power
+pwr.r.test(r = 0.20, power = 0.80, sig.level = 0.029, alternative = "two.sided")  
+pwr.r.test(r = 0.15, power = 0.80, sig.level = 0.029, alternative = "two.sided") 
+pwr.r.test(r = 0.51, power = 0.80, sig.level = 0.029, alternative = "two.sided")
+pwr.r.test(r = 0.00, power = 0.80, sig.level = 0.029, alternative = "two.sided")
+```
+
+
+## Second exploratory part
+
+We finally observed the link between WMC and ERIAM effect for the whole group in the same way as @wessel2021 propose in their study. In the opposite direction to the replicated study, we observe a positive correlation between WM capacities and ERIAM effect, *r*(`r dfcorall$df`) = `r round(dfcorall$ERIAM_WMC,2)`. This correlation is significant for the whole group, *F*(1, `r dfcorall$df`) = `r round(dfcorall$f_value,2)`, *p* `r format_p(dfcorall$p)` . For the Low Span group, the link between WM capacities and ERIAM effect is not significant *r*(`r dfcorlow$df`) = `r round(dfcorlow$ERIAM_WMC,2)`, *F*(1,`r dfcorlow$df`) = `r round(dfcorlow$f_value,2)`, *p* `r format_p(dfcorlow$p)`. Concerning High Span group, we observe a trend for positive linear relationship *r*(`r dfcorhigh$df`) = `r round(dfcorhigh$ERIAM_WMC,2)`, *F*(1,`r dfcorhigh$df`) = `r round(dfcorhigh$f_value,2)`, *p* `r format_p(dfcorhigh$p)` which does not reach .029 threshold of significance. **Figures 7, 8 and 9** show graphic representation of linear relationships observed at group level (**Figure 7**), in low-span (**Figure 8**) and high-span (**Figure 9**) groups. In **Table 4** you can find means and standard errors values for ERIAM and WMC within each span group. It is worth noting that WMC is larger for the lowspan group than for the highspan group, probably due to our task complexity and the way we split participants into span groups.
+
+**Figure 7: Linear relationships between ERIAM and Working Memory Capacities for whole group**
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+dfcorallreg<-data_grouped %>%
+  group_by(Subject) %>% 
+  mutate(
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    eriam = Mean_Mem_correct - Mean_Mem_erreur,
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE)) %>% 
+  ungroup()
+dfcorhighreg<-data_grouped %>%
+  filter(first_Ndigit>=7) %>% 
+  group_by(Subject) %>% 
+  mutate(
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    eriam = Mean_Mem_correct - Mean_Mem_erreur,
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE)) %>% 
+  ungroup()
+dfcorlowreg<-data_grouped %>%
+  filter(first_Ndigit<7) %>% 
+  group_by(Subject) %>% 
+  mutate(
+    Mean_Mem_erreur = mean(Mem_erreur, na.rm = TRUE),
+    Mean_Mem_correct = mean(Mem_correct, na.rm = TRUE),
+    eriam = Mean_Mem_correct - Mean_Mem_erreur,
+    WMC = mean(CollectResponse1.ACC, na.rm = TRUE)) %>% 
+  ungroup()
+
+
+##### création base 12 pour comparaison #################
+# Ajout de la colonne Source à chaque dataframe
+dfcorhighreg <- dfcorhighreg %>% mutate(Source = "highspan")
+dfcorlowreg <- dfcorlowreg %>% mutate(Source = "lowspan")
+
+# Combinaison des deux dataframes
+base12 <- bind_rows(dfcorhighreg, dfcorlowreg)
+
+# Agrégation par sujet pour calculer les moyennes d'eriam et de WMC
+base12 <- base12 %>%
+  group_by(Subject) %>%
+  summarise(
+    eriam = mean(eriam),
+    WMC = mean(WMC),
+    Source = first(Source)
+  ) %>%
+  ungroup()
+#suppression des valeurs manquantes
+base12 <- base12 %>%
+  filter(!is.na(eriam) & eriam != 0 & !is.na(WMC) & WMC != 0)
+
+table12 <- base12 %>%
+  group_by(Source) %>%
+  summarise(
+    ERIAM = mean(eriam, na.rm = TRUE),
+    SEM.eriam = sd(eriam, na.rm = TRUE) / sqrt(n()),
+    WMC = mean(WMC, na.rm = TRUE),
+    SEM.WMC = sd(base12$WMC, na.rm = TRUE) / sqrt(n())
+  ) %>%
+  mutate(across(where(is.numeric), ~ round(., digits = 2)))
+apa_table(table12, caption = "Summary of mean ERIAM and WMC and Standard Error within span groups", placement = "H")
+#####################################################
+
+
+Modele1 <- lm(eriam ~ WMC, data = dfcorallreg)
+
+Modele2 <- lm(eriam ~ WMC, data = dfcorlowreg)
+Modele3 <- lm(eriam ~ WMC, data = dfcorhighreg)
+################# graphes
+graph1<-dfcorallreg %>% 
+  ggplot(aes(WMC, eriam))+
+  geom_point(color = "#1E90FF", na.rm=TRUE) +
+  geom_smooth(method=lm, color="green")+
+  labs(x="WMC", y="ERIAM")+
+  theme_apa()
+
+graph2<-dfcorlowreg %>% 
+  ggplot(aes(WMC, eriam))+
+  geom_point(color = "#1E90FF", na.rm=TRUE) +
+  geom_smooth(method=lm, color="green")+
+  labs(x="WMC", y="ERIAM")+
+  theme_apa()
+
+graph3<-dfcorhighreg %>% 
+  ggplot(aes(WMC, eriam))+
+  geom_point(color = "#1E90FF", na.rm=TRUE) +
+  geom_smooth(method=lm, color="green")+
+  labs(x="WMC", y="ERIAM")+
+  theme_apa()
+##################### panel
+graph1
+```
+
+**Figure 8: Linear relationships between ERIAM and Working Memory Capacities for low span**
+
+```{r}
+graph2
+```
+
+**Figure 9: Linear relationships between ERIAM and Working Memory Capacities for high span**
+
+```{r}
+graph3
+```
+
+# Discussion
+
+To test our first hypothesis, we observed the effect of a motor error on Working Memory maintenance (ERIAM), by carrying out a replication/extension of experiment 2 by @wessel2021. We succeeded in replicating this effect for the whole group. When participants made a mistake on the flanker task, memory recall was significantly impaired. The authors mention that in experiments where they use an arrow flanker task, ERIAM effect was probably facilitated by the similarity of the processes involved in the response modalities of the two parts of the task, both of which are dichotomous. Through different operationalization proposed in our study (recall of the digit rather than recognition) we show that ERIAM effect is also present when two parts of the task do not rely on the same response keys. Moreover, as our participants were not stressed by short response time on Working Memory task, ERIAM is still observable at longer delay period after error is made, probably signifying loss of memory trace.
+
+To explain these results, going back to Adaptive Orienting Theory (AOT) [@wessel2017] is useful. AOT predicts that errors lead to an impairment of cognitive processes in progress. Memory tasks involve encoding, storage (with rehearsal for WM) and retrievial of information. We probably can exclude here effect of the error on retrievial process because our operationalisation of recall was not time-limited and should have normally enabled participants to perform equally in both conditions (error or correct). Nethertheless, we cannot conclude which of the other two processes (encoding or storage) is impacted by the effect of the error. If we assume that encoding is done before the conflict task starts, probably error compete with rehearsal processes in Working Memory, as it diverts limited attentional ressources also in use for Working Memory maintenance [@barrouillet2020].
+
+@oberauer2019 reminds us that of "*theoretical options for spelling out the idea of WM as relying on an attentional resource*", that of a shared resource for storage and processing has received the most theoretical support. In our case and on the basis of functional theories of PES, error detection engage deployment of cognitive control [@botvinick2001] to be monitored. As this process take place, processing resource are focused on error monitoring and and take up some of the common attentional resources allocated to information storage in working memory. This needs to be disentangled by proposing other protocols specifically studying these constructs.
+
+Concerning our second hypothesis of a differential impact of increased cognitive load in the two High and Low Span groups, we implemented a mixed model using REML handling non independant data to predict ERIAM. Neither cognitive load nor group span are good predictors of ERIAM effect in our model. Proceding by model comparison and a one by one factor incremental method, neither model reach better fit to the data than null model. We believe in this case that ERIAM is already a highly transformed summary of data (𝛅 between mean correct and mean error accuracy). Our model cannot explain a significantly sufficient part of variance of ERIAM when controling for span group nor cognitive load. This may be because of insufficient statistical power due to low sample size (e.g. low span group in this case has a 20 participants sample). But it may also be a consequence of mixed model and all variance falling into random factor. This conclusion is far from being trustworthy in our study and need further investigation.
+
+Next we proposed an exploratory part trying to predict accuracy with group span, cognitive load and error made on conflict task. Accuracy is a lower-leveled construct than ERIAM. While turning back to this level our goal is to have a simplified understanding of predictors and data. This time, model with predictors is significantly better fitted to our data than null model. With this model we find that all simple predictors' effect are significant. Error made on conflict task (ERIAM effect), cognitive load and High span group all have a significant negative effect on accuracy. Interestingly, interaction of group span and cognitive load is significant too. The combination of High span group and increased cognitive load have a significant positive effect on accuracy. More precisely (see **Figure 6**), we can see that accuracy is less impaired by the increase of cognitive load in High span than in Low span group. It is possible that High span participants are more engaged in task when cognitive load increase and thus perform better.
+
+To say more about simple effects of predictors within this model, first we can see that error factor has a significant negative effect on accuracy. That doesn't come as much of a surprise because it reflects ERIAM effect already found in hypothesis 1 testing. This time however, we find this fixed effect of error while controling for random effect. Then, High span group has a lower accuracy level than low span group. This probably comes from our experimental design that categorizes High and Low span groups according to the number of digits reached in the empanel at the end of the training phase. For High span participants, it may be that trials have been more challenging and their performance significantly lower than Low span participants. Finally, cognitive load has a detrimental effect on accuracy for all participants. As we can imagine, adding one digit to a span already calibrated on your own capacities is likely to make the task even more complex. This effect of cognitive load is nevertheless modified by an interaction effect with the group of participants.
+
+Effect of interaction between span group and cognitive load on accuracy is significant and positive (see **Figure 6**). We can see on the graph that when cognitive load increase, High span individuals are less impacted than Low span. Their accuracy on working memory task is less impaired than these of Low span when cognitive load increase. Even if our predictions of hypothesis 2 concerning ERIAM effect do not raise significativity, it can be interesting here to compare visual observations of increasing cognitive load on ERIAM against accuracy. As proposed by @thomassin2015, High span individuals have more complex strategies that lead to both better performance and greater susceptibility to an increase in cognitive load. It seems that our data go in this way. ERIAM effect is visually as important in both conditions of load for High span group, which can be related to the performance susceptibility part of the High span group. On the other way, their more complex strategies lead to a more stable accuracy performance within the two cognitive load conditions. But this is open to caution, as we are dealing in this part with an exploratory approach and, what's more, using results that are not significant.
+
+Our third hypothesis has not be corroborated by data. Correlation between ERIAM and WMC, when controling for group span and cognitive load, only reach significance in Low span group and increased cognitive load condition. No particular patern in our data is observed, probably because in this part of our study our analysis rely on complex constructs (ERIAM and WMC are highly transformed data) and need more power (increased sample size) to reach significance. On this part of our work, it seems we cannot go further with our sample size. Here is a limit of our study.
+
+Finally, we conducted linear regression analyses to test the link between WMC and the ERIAM effect for the whole group. We observed a positive and significant link between WMC and ERIAM effect. These results are in the opposite direction to those obtained by @wessel2021, who find a negative correlation and explained that "*ERIAM most affected subjects for whom the WM aspect of the task was more challenging.*" In our study, ERIAM effect increases as WMC increases for the whole group. Splitting our sample in High and Low span groups, we can observed that correlation ERIAM/WMC does not reach our alpha level (Pocock corrected for one interim analysis). Nethertheless, a trend of a positive linear relationship is observed in High span group. However, as we can see in **Table 4**, this particular results are probably due to our span group splitting, as lowspan have better average WMC than highspan. With this in mind, we can better understand the correlation between ERIAM and WMC.
+
+Highspan participants have a less impaired performance on digits span recall when they commited an error on flanker task (lower ERIAM levels). Nethertheless, their WMC is lower than lowspan group probably because they have reached high levels of task complexity. On the other hand, lowspan participants are more proned to ERIAM. This results drive the correlation between ERIAM and WMC in our sample, as higher WMC are reached by lowspan participants probably because of less complexity of the task in this group. As @wessel2021 say, "*The likely explanation for this finding is that subjects with a lower overall WM accuracy maintain less stable WM representations, which are then more susceptible to the impairing effects of errors*." In our data, this lower "*WM accuracy"* are observed for highspan individuals, what probably leads to our positive relationship between ERIAM and WMC.
+
+According to Lavie (2010), "*The ability to focus attention \[...\] deteriorates under conditions of high load on cognitive control processes such as working memory.*" In our study we find data in the direction of this theoretical prediction as accuracy levels on Working Memory task seem to decrease as we increase cognitive load (see exploratory part **2.3**). Interestingly, Lavie's theory of load encompass both the effects of perceptual and cognitive loads. While a high perceptual load reduces the processing of irrelevant stimuli, a high cognitive load increases it. Turning back to PEA functional and non-functional explanations, it is commonly accepted that error is an irrelevant stimulus to the task at hand. Error diverts attention and engage or not (depending on theory) further processing to regain maximum performance levels.
+
+ERIAM effect is only significant in lowspan group in the moderate cognitive load condition and in highspan group in the increased load condition (**Table 3**). Refering to Lavie's load theory, we can presume that for lowspan participants the increased cognitive load condition exceeds their capacities. Lowspan in this condition probably withdraw their cognitive control on task at hand, probably explaining why ERIAM is not found in this group under this load condition. Error has probably been filtered at a perceptual level and so does not engage any further processing leading to ERIAM. On the other hand, the opposite pattern is observed for highspan participants. Highspan within moderate cognitive load condition probably do not engage further processing on flanker task and treat it at a perceptual level, focusing only on digit span part of the task (but we can see a non-significant trend for ERIAM even in this condition). When cognitive load is increased however ERIAM becomes significant in this group. This may be because highspan are more motivated by task and treat all stimuli at a cognitive level. This can lead to increasing interference of error events as Lavie postulated.
+
+# Conclusion
+
+In conclusion, our study provides significant insights into the relationship between motor errors and Working Memory maintenance (ERIAM), as well as the influence of cognitive load and individual differences in working memory capacity. Firstly, we successfully replicated previous findings demonstrating that motor errors impair memory recall, extending this effect to tasks with different response modalities, indicating a broader applicability of ERIAM across task variations. Our results align with Adaptive Orienting Theory, suggesting that error detection diverts attentional resources from memory maintenance processes, particularly rehearsal in Working Memory. However, the exact impact on encoding versus storage remains inconclusive and warrants further investigation.
+
+Secondly, while our hypotheses regarding differential effects of cognitive load and working memory capacity on ERIAM were not fully supported, our exploratory analysis revealed intriguing patterns. High-span individuals exhibited more stable accuracy under increased cognitive load compared to low-span individuals, possibly due to their engagement in more complex strategies. This suggests that individual differences in working memory capacity may modulate the impact of cognitive load on task performance.
+
+Additionally, our study highlights the intricate interplay between cognitive load, error processing, and working memory capacity. High cognitive load conditions seemed to exacerbate the ERIAM effect, particularly in high-span individuals, potentially due to increased interference from error events. Conversely, low-span individuals may disengage cognitive control under high load conditions, leading to reduced susceptibility to ERIAM.
+
+Moreover, our findings regarding the correlation between ERIAM and Working Memory Capacity (WMC) diverged from previous research, with a positive relationship observed in our study. This discrepancy may be attributed to differences in task complexity and individual cognitive strategies. High-span individuals exhibited lower ERIAM levels but also lower WMC, possibly indicating a ceiling effect due to task complexity for this group.
+
+Overall, our study contributes to the understanding of how motor errors impact working memory maintenance, shedding light on the moderating roles of cognitive load and individual differences in working memory capacity. Future research should further elucidate the underlying mechanisms of ERIAM and its implications for cognitive control processes. Additionally, investigations into the interaction between error processing, cognitive load, and individual cognitive characteristics could provide valuable insights into optimizing task performance and cognitive resource allocation.
+
+\newpage
+
+# References
+
+::: {#refs custom-style="Bibliography"}
+:::

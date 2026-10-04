@@ -5,22 +5,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mes publications et données</title>
   <style>
-    body { font-family: system-ui, sans-serif; max-width: 750px; margin: 40px auto; padding: 0 20px; line-height: 1.6; color: #333; }
-    h1 { border-bottom: 2px solid #eaecef; padding-bottom: 10px; }
-    .pub { margin-bottom: 24px; padding: 16px; border: 1px solid #e1e4e8; border-radius: 6px; }
-    .pub h3 { margin-top: 0; }
-    .btn { display: inline-block; padding: 4px 10px; margin-right: 8px; background: #0366d6; color: white; text-decoration: none; border-radius: 4px; font-size: 0.85rem; }
-    .btn-secondary { background: #586069; }
+    body {
+      font-family: system-ui, sans-serif;
+      margin: 0;
+      padding: 40px 20px;
+      line-height: 1.6;
+      color: #333;
+
+      /* Image de fond */
+      background-image: url('fond.jpg');
+      background-size: cover;          /* L'image s'adapte à tout l'écran */
+      background-position: center;     /* Centrée */
+      background-attachment: fixed;    /* Reste fixe lors du défilement */
+      background-repeat: no-repeat;
+    }
+
+    /* Boîte blanche pour garantir une bonne lisibilité */
+    .container {
+      max-width: 750px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.93);
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    h1 {
+      border-bottom: 2px solid #eaecef;
+      padding-bottom: 10px;
+      margin-top: 0;
+    }
+
+    .pub {
+      margin-bottom: 24px;
+      padding: 16px;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      background: #ffffff;
+    }
+
+    .pub h3 {
+      margin-top: 0;
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 6px 14px;
+      margin-right: 8px;
+      background: #0366d6;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+
+    .btn:hover {
+      background: #024ea4;
+    }
+
+    .btn-secondary {
+      background: #586069;
+    }
   </style>
 </head>
 <body>
-  <h1>Reprint, preprint...Open access</h1>
-  
-  <div class="pub">
-    <h3>Titles</h3>
-    <p>Brochet et al 2025.pdf <em>Acta Psychologica</em>.</p>
+  <div class="container">
+    <h1>Reprint, preprint...Open access</h1>
     
-    <a href="Brochet%20et%20al%202025.pdf" class="btn" target="_blank">PDF</a>
+    <div class="pub">
+      <h3>Titles</h3>
+      <p>Brochet et al. (2025). <em>Acta Psychologica</em>.</p>
+      
+      <a href="Brochet%20et%20al%202025.pdf" class="btn" target="_blank">PDF</a>
+    </div>
   </div>
 </body>
 </html>

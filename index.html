@@ -101,6 +101,7 @@
       display: inline-block;
       padding: 6px 14px;
       margin-right: 8px;
+      margin-bottom: 6px;
       background: #0366d6;
       color: white;
       text-decoration: none;
@@ -137,7 +138,7 @@
     <!-- Les boutons d'onglets -->
     <div class="tabs">
       <button class="tab-btn active" onclick="switchTab(event, 'tab-reprints')">Articles & Reprints</button>
-      <button class="tab-btn" onclick="switchTab(event, 'tab-scripts')">Analysis scripts</button>
+      <button class="tab-btn" onclick="switchTab(event, 'tab-scripts')">Analysis scripts & Data</button>
       <button class="tab-btn" onclick="switchTab(event, 'tab-experiments')">Experiment codes</button>
     </div>
 
@@ -154,19 +155,35 @@
     <!-- Onglet 2 : Scripts d'analyse & Données -->
     <div id="tab-scripts" class="tab-content">
       <div class="pub">
-        <h3>Analysis script & Data</h3>
+        <h3>Brochet et al. (2025) - Analysis script & Data</h3>
         <p>Quarto analysis script and dataset for Brochet et al. (2025).</p>
         <a href="Brochet%20et%20al%202025-%20Analysis%20script.qmd" class="btn" target="_blank" download>Script Quarto (.qmd)</a>
         <a href="donn%C3%A9e_totale.csv" class="btn btn-secondary" target="_blank" download>Dataset (.csv)</a>
+      </div>
+
+      <!-- Données du nouveau projet -->
+      <div class="pub">
+        <h3>New Project - Datasets</h3>
+        <p>Raw behavioral datasets (high-speed and low-speed conditions).</p>
+        <a href="datasethighspeed5.csv" class="btn" target="_blank" download>Dataset High Speed (.csv)</a>
+        <a href="datasetlowspeed5.csv" class="btn btn-secondary" target="_blank" download>Dataset Low Speed (.csv)</a>
       </div>
     </div>
 
     <!-- Onglet 3 : Code d'expérience -->
     <div id="tab-experiments" class="tab-content">
       <div class="pub">
-        <h3>Tâche comportementale (PsychoPy / jsPsych)</h3>
+        <h3>Brochet et al. (2025) - Tâche comportementale</h3>
         <p>Protocole expérimental et stimuli utilisés dans l'étude.</p>
         <a href="https://osf.io/..." class="btn" target="_blank">Télécharger la tâche</a>
+      </div>
+
+      <!-- Codes du nouveau projet -->
+      <div class="pub">
+        <h3>New Project - Experiment codes (jsPsych)</h3>
+        <p>Experimental scripts for the two target speed conditions.</p>
+        <a href="high%20speeded%20targets.js" class="btn" target="_blank" download>High Speed Targets (.js)</a>
+        <a href="low%20speeded%20targets.js" class="btn btn-secondary" target="_blank" download>Low Speed Targets (.js)</a>
       </div>
     </div>
 

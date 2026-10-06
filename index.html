@@ -34,19 +34,59 @@
     header {
       margin-bottom: 24px;
       border-bottom: 2px solid #eaecef;
-      padding-bottom: 12px;
+      padding-bottom: 16px;
     }
 
     h1 {
       margin: 0 0 6px 0;
-      font-size: 1.6rem;
+      font-size: 1.65rem;
       color: #0f172a;
     }
 
     .subtitle {
-      margin: 0;
+      margin: 0 0 12px 0;
       font-size: 0.95rem;
       color: #57606a;
+    }
+
+    /* --- Author Contact / Profile Links --- */
+    .author-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .meta-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #f6f8fa;
+      border: 1px solid #d0d7de;
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: #24292f;
+      text-decoration: none;
+      transition: all 0.15s ease;
+    }
+
+    .meta-link:hover {
+      background: #eef2f6;
+      border-color: #0969da;
+      color: #0969da;
+    }
+
+    .meta-link.orcid:hover {
+      border-color: #a6ce39;
+      color: #729609;
+    }
+
+    .meta-link.linkedin:hover {
+      border-color: #0077b5;
+      color: #0077b5;
     }
 
     /* --- Back Button --- */
@@ -259,6 +299,26 @@
     <header>
       <h1>Open Science Repository</h1>
       <p class="subtitle">Reprints, preprints, analysis scripts, raw datasets, and experiment code.</p>
+      
+      <!-- Academic Contact & Identification -->
+      <div class="author-meta">
+        <a href="https://orcid.org/0000-0001-6395-2728" target="_blank" rel="noopener noreferrer" class="meta-link orcid">
+          <svg width="14" height="14" viewBox="0 0 256 256" style="vertical-align: middle;">
+            <path fill="#A6CE39" d="M256 128c0 70.7-57.3 128-128 128S0 198.7 0 128 57.3 0 128 0s128 57.3 128 128z"/>
+            <path fill="#FFF" d="M86.3 186.2H70.9V79.1h15.4v107.1zM78.6 66.8c-5.5 0-9.9-4.4-9.9-9.9s4.4-9.9 9.9-9.9 9.9 4.4 9.9 9.9-4.4 9.9-9.9 9.9zm41.1 119.4h-15.4V79.1h25.9c30.2 0 46.9 19.4 46.9 47.1 0 27.5-16.7 60-57.4 60zm1.7-14.7c22.6 0 34.6-17.7 34.6-42.3 0-25.2-12.2-35.8-34.6-35.8h-11.2v78.1h11.2z"/>
+          </svg>
+          ORCID: 0000-0001-6395-2728
+        </a>
+        <a href="mailto:emilien.brochet@univ-tlse2.fr" class="meta-link">
+          ✉ emilien.brochet@univ-tlse2.fr
+        </a>
+        <a href="https://www.linkedin.com/in/emilien-brochet-044156287" target="_blank" rel="noopener noreferrer" class="meta-link linkedin">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#0077b5" style="vertical-align: middle;">
+            <path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.762-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/>
+          </svg>
+          LinkedIn: Emilien Brochet
+        </a>
+      </div>
     </header>
 
     <!-- ======================================================== -->
@@ -284,16 +344,6 @@
         </div>
         <p class="project-card-desc">Signal detection, kinematic sets, and multidimensional salience in dynamic inattentional blindness. Includes experimental tasks (jsPsych) and raw behavioral data.</p>
       </div>
-
-      <!-- Template to add future projects easily:
-      <div class="project-card-link" onclick="openProject('proj-3')">
-        <div class="project-card-header">
-          <h3 class="project-card-title">Project 3: [Title]</h3>
-          <span class="badge-status ongoing">Ongoing</span>
-        </div>
-        <p class="project-card-desc">[Short description]</p>
-      </div>
-      -->
     </div>
 
     <!-- ======================================================== -->
@@ -407,25 +457,21 @@
   </div>
 
   <script>
-    // Show selected project view and hide the main project list
     function openProject(projectId) {
       document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
       const targetProj = document.getElementById(projectId);
       if (targetProj) {
         targetProj.classList.add('active');
-        // Reset sub-tabs to the first tab by default
         const firstTabBtn = targetProj.querySelector('.sub-tab-btn');
         if (firstTabBtn) firstTabBtn.click();
       }
     }
 
-    // Return to main list view
     function showProjectList() {
       document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
       document.getElementById('view-project-list').classList.add('active');
     }
 
-    // Sub-tab switcher inside a project
     function switchSubTab(evt, categoryId, parentProjectId) {
       const parent = document.getElementById(parentProjectId);
       parent.querySelectorAll('.category-content').forEach(c => c.classList.remove('active'));

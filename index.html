@@ -49,39 +49,69 @@
       color: #57606a;
     }
 
-    /* --- Level 1: Project Tabs --- */
-    .project-tabs {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      border-bottom: 2px solid #d0d7de;
-      padding-bottom: 8px;
-    }
-
-    .proj-btn {
+    /* --- Back Button --- */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       background: #f6f8fa;
       border: 1px solid #d0d7de;
-      padding: 10px 18px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.95rem;
+      padding: 6px 14px;
+      border-radius: 6px;
+      color: #0969da;
+      font-size: 0.88rem;
       font-weight: 600;
-      color: #57606a;
+      cursor: pointer;
+      margin-bottom: 20px;
+      transition: background 0.15s ease;
+    }
+
+    .back-btn:hover {
+      background: #eef2f6;
+    }
+
+    /* --- Clickable Project Cards (Project List View) --- */
+    .project-card-link {
+      display: block;
+      margin-bottom: 14px;
+      padding: 20px;
+      border: 1px solid #d0d7de;
+      border-radius: 8px;
+      background: #ffffff;
+      text-decoration: none;
+      color: inherit;
+      cursor: pointer;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
       transition: all 0.2s ease;
     }
 
-    .proj-btn:hover {
-      background: #eef2f6;
-      color: #24292f;
-    }
-
-    .proj-btn.active {
-      background: #0969da;
-      color: #ffffff;
+    .project-card-link:hover {
       border-color: #0969da;
+      box-shadow: 0 4px 12px rgba(9, 105, 218, 0.12);
+      transform: translateY(-1px);
     }
 
-    /* --- Level 2: Sub-category Tabs --- */
+    .project-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .project-card-title {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #0969da;
+    }
+
+    .project-card-desc {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #57606a;
+    }
+
+    /* --- Sub-tabs inside Project View --- */
     .sub-tabs {
       display: flex;
       gap: 8px;
@@ -116,12 +146,12 @@
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
-    /* Content Display */
-    .project-content {
+    /* --- Content Display Control --- */
+    .view-section {
       display: none;
     }
 
-    .project-content.active {
+    .view-section.active {
       display: block;
     }
 
@@ -133,7 +163,7 @@
       display: block;
     }
 
-    /* Item Cards */
+    /* --- Item Cards --- */
     .card {
       margin-bottom: 16px;
       padding: 18px;
@@ -167,7 +197,21 @@
       margin-bottom: 8px;
     }
 
-    /* Action Buttons */
+    .badge-status {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 12px;
+      background: #dafbe1;
+      color: #1a7f37;
+    }
+
+    .badge-status.ongoing {
+      background: #fff8c5;
+      color: #9a6700;
+    }
+
+    /* --- Buttons --- */
     .btn {
       display: inline-block;
       padding: 6px 14px;
@@ -217,15 +261,51 @@
       <p class="subtitle">Reprints, preprints, analysis scripts, raw datasets, and experiment code.</p>
     </header>
 
-    <!-- LEVEL 1: Projects Selector -->
-    <div class="project-tabs">
-      <button class="proj-btn active" onclick="switchProject(event, 'proj-1')">Project 1: ERIAM effect (2025)</button>
-      <button class="proj-btn" onclick="switchProject(event, 'proj-2')">Project 2: Inattentional Blindness for speed</button>
+    <!-- ======================================================== -->
+    <!-- VIEW 0: MAIN PROJECT LIST (CLICKABLE CATALOG)           -->
+    <!-- ======================================================== -->
+    <div id="view-project-list" class="view-section active">
+      <h2 style="font-size: 1.15rem; margin-top: 0; margin-bottom: 16px; color: #334155;">Research Projects</h2>
+
+      <!-- Project 1 Card -->
+      <div class="project-card-link" onclick="openProject('proj-1')">
+        <div class="project-card-header">
+          <h3 class="project-card-title">Project 1: ERIAM effect (2025)</h3>
+          <span class="badge-status">Published</span>
+        </div>
+        <p class="project-card-desc">Investigating cognitive control mechanisms and the ERIAM effect. Includes published paper, Quarto notebook, and full dataset.</p>
+      </div>
+
+      <!-- Project 2 Card -->
+      <div class="project-card-link" onclick="openProject('proj-2')">
+        <div class="project-card-header">
+          <h3 class="project-card-title">Project 2: Inattentional Blindness for Speed</h3>
+          <span class="badge-status ongoing">In progress</span>
+        </div>
+        <p class="project-card-desc">Signal detection, kinematic sets, and multidimensional salience in dynamic inattentional blindness. Includes experimental tasks (jsPsych) and raw behavioral data.</p>
+      </div>
+
+      <!-- Template to add future projects easily:
+      <div class="project-card-link" onclick="openProject('proj-3')">
+        <div class="project-card-header">
+          <h3 class="project-card-title">Project 3: [Title]</h3>
+          <span class="badge-status ongoing">Ongoing</span>
+        </div>
+        <p class="project-card-desc">[Short description]</p>
+      </div>
+      -->
     </div>
 
-    <!-- ==================== PROJECT 1 ==================== -->
-    <div id="proj-1" class="project-content active">
-      <!-- LEVEL 2: Resource Sub-tabs -->
+    <!-- ======================================================== -->
+    <!-- VIEW 1: DETAIL FOR PROJECT 1                             -->
+    <!-- ======================================================== -->
+    <div id="proj-1" class="view-section project-detail-view">
+      <button class="back-btn" onclick="showProjectList()">← Back to Projects list</button>
+
+      <h2 style="margin-top: 0; margin-bottom: 6px; font-size: 1.35rem;">Project 1: ERIAM effect (2025)</h2>
+      <p style="color: #57606a; margin-top: 0; margin-bottom: 20px; font-size: 0.9rem;">Peer-reviewed publication, analysis notebook, and raw data.</p>
+
+      <!-- Sub-tabs -->
       <div class="sub-tabs">
         <button class="sub-tab-btn active" onclick="switchSubTab(event, 'p1-papers', 'proj-1')">Publications & Reprints</button>
         <button class="sub-tab-btn" onclick="switchSubTab(event, 'p1-scripts', 'proj-1')">Data & Analysis Scripts</button>
@@ -265,9 +345,16 @@
       </div>
     </div>
 
-    <!-- ==================== PROJECT 2 ==================== -->
-    <div id="proj-2" class="project-content">
-      <!-- LEVEL 2: Resource Sub-tabs -->
+    <!-- ======================================================== -->
+    <!-- VIEW 2: DETAIL FOR PROJECT 2                             -->
+    <!-- ======================================================== -->
+    <div id="proj-2" class="view-section project-detail-view">
+      <button class="back-btn" onclick="showProjectList()">← Back to Projects list</button>
+
+      <h2 style="margin-top: 0; margin-bottom: 6px; font-size: 1.35rem;">Project 2: Inattentional Blindness for Speed</h2>
+      <p style="color: #57606a; margin-top: 0; margin-bottom: 20px; font-size: 0.9rem;">Dynamic tracking, kinematic attentional set, and multidimensional salience.</p>
+
+      <!-- Sub-tabs -->
       <div class="sub-tabs">
         <button class="sub-tab-btn active" onclick="switchSubTab(event, 'p2-experiments', 'proj-2')">Experiment Code</button>
         <button class="sub-tab-btn" onclick="switchSubTab(event, 'p2-scripts', 'proj-2')">Data & Analysis Scripts</button>
@@ -320,22 +407,32 @@
   </div>
 
   <script>
-    // Project Switcher (Level 1)
-    function switchProject(evt, projectId) {
-      document.querySelectorAll('.project-content').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.proj-btn').forEach(btn => btn.classList.remove('active'));
-
-      document.getElementById(projectId).classList.add('active');
-      evt.currentTarget.classList.add('active');
+    // Show selected project view and hide the main project list
+    function openProject(projectId) {
+      document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
+      const targetProj = document.getElementById(projectId);
+      if (targetProj) {
+        targetProj.classList.add('active');
+        // Reset sub-tabs to the first tab by default
+        const firstTabBtn = targetProj.querySelector('.sub-tab-btn');
+        if (firstTabBtn) firstTabBtn.click();
+      }
     }
 
-    // Category Sub-tabs Switcher (Level 2)
+    // Return to main list view
+    function showProjectList() {
+      document.querySelectorAll('.view-section').forEach(view => view.classList.remove('active'));
+      document.getElementById('view-project-list').classList.add('active');
+    }
+
+    // Sub-tab switcher inside a project
     function switchSubTab(evt, categoryId, parentProjectId) {
       const parent = document.getElementById(parentProjectId);
       parent.querySelectorAll('.category-content').forEach(c => c.classList.remove('active'));
       parent.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
 
-      parent.querySelector('#' + categoryId).classList.add('active');
+      const targetCategory = parent.querySelector('#' + categoryId);
+      if (targetCategory) targetCategory.classList.add('active');
       evt.currentTarget.classList.add('active');
     }
   </script>

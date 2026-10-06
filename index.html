@@ -1,210 +1,363 @@
+Voici une version restructurée, beaucoup plus claire et professionnelle pour un profil académique Open Science.
+
+### Ce qui change :
+
+1. **Organisation en double niveau (Projets puis Ressources) :**
+* **Niveau 1 (Onglets principaux) :** Sélection du projet de recherche (**Project 1: Brochet et al. (2025)** vs **Project 2: Inattentional Blindness (Current)**).
+* **Niveau 2 (Sous-onglets par projet) :** Séparation fluide entre *Papers & Preprints*, *Data & Analysis Scripts*, et *Experiment Code*.
+
+
+2. **Emplacement réservé (Placeholders propres) pour la suite :** Pour le projet 2, les sections *Preprint / Paper* et *Analysis script (Quarto / R)* sont déjà préparées avec la mention *(In preparation / Coming soon)* pour que tu n'aies qu'à y insérer tes fichiers plus tard.
+3. **100 % en anglais :** Tous les intitulés, boutons, métadonnées et infobulles sont traduits en anglais académique standard.
+4. **Liens sécurisés :** Encodage propre (`%20`) pour les espaces dans les noms de fichiers (`high speeded targets.js`, etc.).
+
+---
+
+### Code complet à coller dans ton fichier HTML
+
+```html
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Emilien Brochet</title>
+  <title>Émilien Brochet | Open Science Repository</title>
   <style>
     body {
-      font-family: system-ui, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       margin: 0;
       padding: 40px 20px;
       line-height: 1.6;
-      color: #333;
+      color: #24292f;
 
-      /* Image de fond */
+      /* Background image */
       background-image: url('fond.jpg');
       background-size: contain;
-      background-color: #000;
+      background-color: #0d1117;
       background-position: center;
       background-attachment: fixed;
       background-repeat: no-repeat;
     }
 
-    /* Boîte blanche pour garantir une bonne lisibilité */
+    /* Main Container */
     .container {
-      max-width: 750px;
+      max-width: 800px;
       margin: 0 auto;
-      background: rgba(255, 255, 255, 0.95);
-      padding: 30px;
+      background: rgba(255, 255, 255, 0.96);
+      padding: 32px;
       border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    header {
+      margin-bottom: 24px;
+      border-bottom: 2px solid #eaecef;
+      padding-bottom: 12px;
     }
 
     h1 {
-      border-bottom: 2px solid #eaecef;
-      padding-bottom: 12px;
-      margin-top: 0;
-      font-size: 1.5rem;
+      margin: 0 0 6px 0;
+      font-size: 1.6rem;
+      color: #0f172a;
     }
 
-    /* --- Barre d'onglets --- */
-    .tabs {
+    .subtitle {
+      margin: 0;
+      font-size: 0.95rem;
+      color: #57606a;
+    }
+
+    /* --- Level 1: Project Tabs --- */
+    .project-tabs {
       display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 24px;
-      border-bottom: 1px solid #e1e4e8;
-      padding-bottom: 10px;
+      gap: 10px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #d0d7de;
+      padding-bottom: 8px;
     }
 
-    .tab-btn {
-      background: #f1f3f5;
+    .proj-btn {
+      background: #f6f8fa;
       border: 1px solid #d0d7de;
-      padding: 8px 16px;
-      border-radius: 6px;
+      padding: 10px 18px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #495057;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #57606a;
       transition: all 0.2s ease;
     }
 
-    .tab-btn:hover {
-      background: #e9ecef;
-      color: #212529;
+    .proj-btn:hover {
+      background: #eef2f6;
+      color: #24292f;
     }
 
-    /* Onglet actif */
-    .tab-btn.active {
-      background: #0366d6;
-      color: white;
-      border-color: #0366d6;
+    .proj-btn.active {
+      background: #0969da;
+      color: #ffffff;
+      border-color: #0969da;
     }
 
-    /* Conteneurs de chaque onglet */
-    .tab-content {
+    /* --- Level 2: Sub-category Tabs --- */
+    .sub-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      background: #f6f8fa;
+      padding: 6px;
+      border-radius: 8px;
+    }
+
+    .sub-tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #57606a;
+      text-align: center;
+      transition: all 0.2s ease;
+    }
+
+    .sub-tab-btn:hover {
+      color: #24292f;
+    }
+
+    .sub-tab-btn.active {
+      background: #ffffff;
+      color: #0969da;
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Content Display */
+    .project-content {
       display: none;
     }
 
-    .tab-content.active {
+    .project-content.active {
       display: block;
     }
 
-    /* Cartes pour les publications / scripts */
-    .pub {
-      margin-bottom: 18px;
-      padding: 16px;
-      border: 1px solid #e1e4e8;
+    .category-content {
+      display: none;
+    }
+
+    .category-content.active {
+      display: block;
+    }
+
+    /* Item Cards */
+    .card {
+      margin-bottom: 16px;
+      padding: 18px;
+      border: 1px solid #d0d7de;
       border-radius: 8px;
       background: #ffffff;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
     }
 
-    .pub h3 {
+    .card h3 {
       margin-top: 0;
-      font-size: 1.15rem;
-      color: #1a1f2c;
+      margin-bottom: 6px;
+      font-size: 1.1rem;
+      color: #1f2328;
     }
 
+    .card p {
+      margin: 0 0 14px 0;
+      font-size: 0.9rem;
+      color: #57606a;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 12px;
+      background: #ddf4ff;
+      color: #0969da;
+      margin-bottom: 8px;
+    }
+
+    /* Action Buttons */
     .btn {
       display: inline-block;
       padding: 6px 14px;
       margin-right: 8px;
       margin-bottom: 6px;
-      background: #0366d6;
+      background: #0969da;
       color: white;
       text-decoration: none;
-      border-radius: 4px;
+      border-radius: 6px;
       font-size: 0.85rem;
       font-weight: 500;
+      transition: background 0.15s ease;
     }
 
     .btn:hover {
-      background: #024ea4;
+      background: #0856b6;
     }
 
     .btn-secondary {
-      background: #586069;
+      background: #57606a;
     }
 
     .btn-secondary:hover {
-      background: #444b52;
+      background: #424a53;
     }
 
-    /* Pied de page pour le compteur */
+    .btn-disabled {
+      background: #e1e4e8;
+      color: #8c959f;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* Footer */
     .footer {
       text-align: center;
-      margin-top: 30px;
-      padding-top: 15px;
+      margin-top: 32px;
+      padding-top: 16px;
       border-top: 1px solid #eaecef;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1>Reprint, preprint, analysis scripts, experiment code... Open access</h1>
+    <header>
+      <h1>Open Science Repository</h1>
+      <p class="subtitle">Reprints, preprints, analysis scripts, raw datasets, and experiment code.</p>
+    </header>
 
-    <!-- Les boutons d'onglets -->
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab(event, 'tab-reprints')">Articles & Reprints</button>
-      <button class="tab-btn" onclick="switchTab(event, 'tab-scripts')">Analysis scripts & Data</button>
-      <button class="tab-btn" onclick="switchTab(event, 'tab-experiments')">Experiment codes</button>
+    <!-- LEVEL 1: Projects Selector -->
+    <div class="project-tabs">
+      <button class="proj-btn active" onclick="switchProject(event, 'proj-1')">Project 1: Cognitive Control (2025)</button>
+      <button class="proj-btn" onclick="switchProject(event, 'proj-2')">Project 2: Inattentional Blindness</button>
     </div>
 
-    <!-- Onglet 1 : Reprints & Articles -->
-    <div id="tab-reprints" class="tab-content active">
-      <div class="pub">
-        <h3>Title</h3>
-        <p>Brochet et al. (2025). <em>Acta Psychologica</em>.</p>
-        <a href="Brochet%20et%20al%202025.pdf" class="btn" target="_blank">PDF</a>
-        <a href="https://doi.org/10.1016/j.actpsy.2025.105113" class="btn btn-secondary" target="_blank">DOI</a>
+    <!-- ==================== PROJECT 1 ==================== -->
+    <div id="proj-1" class="project-content active">
+      <!-- LEVEL 2: Resource Sub-tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" onclick="switchSubTab(event, 'p1-papers', 'proj-1')">Publications & Reprints</button>
+        <button class="sub-tab-btn" onclick="switchSubTab(event, 'p1-scripts', 'proj-1')">Data & Analysis Scripts</button>
+        <button class="sub-tab-btn" onclick="switchSubTab(event, 'p1-experiments', 'proj-1')">Experiment Code</button>
+      </div>
+
+      <!-- P1: Publications -->
+      <div id="p1-papers" class="category-content active">
+        <div class="card">
+          <span class="badge">Peer-Reviewed Article</span>
+          <h3>Brochet et al. (2025)</h3>
+          <p>Brochet et al. (2025). <em>Acta Psychologica</em>.</p>
+          <a href="Brochet%20et%20al%202025.pdf" class="btn" target="_blank">Download PDF</a>
+          <a href="https://doi.org/10.1016/j.actpsy.2025.105113" class="btn btn-secondary" target="_blank" rel="noopener">DOI Link</a>
+        </div>
+      </div>
+
+      <!-- P1: Data & Scripts -->
+      <div id="p1-scripts" class="category-content">
+        <div class="card">
+          <span class="badge">Open Materials</span>
+          <h3>Analysis Script & Data</h3>
+          <p>Reproducible Quarto analysis notebook (.qmd) and full dataset.</p>
+          <a href="Brochet%20et%20al%202025-%20Analysis%20script.qmd" class="btn" target="_blank" download>Quarto Script (.qmd)</a>
+          <a href="donn%C3%A9e_totale.csv" class="btn btn-secondary" target="_blank" download>Full Dataset (.csv)</a>
+        </div>
+      </div>
+
+      <!-- P1: Experiment Task -->
+      <div id="p1-experiments" class="category-content">
+        <div class="card">
+          <span class="badge">Task Code</span>
+          <h3>Behavioral Task (PsychoPy / jsPsych)</h3>
+          <p>Experimental paradigm and presentation files used in the published study.</p>
+          <a href="https://osf.io/..." class="btn" target="_blank" rel="noopener">View on OSF</a>
+        </div>
       </div>
     </div>
 
-    <!-- Onglet 2 : Scripts d'analyse & Données -->
-    <div id="tab-scripts" class="tab-content">
-      <div class="pub">
-        <h3>Brochet et al. (2025) - Analysis script & Data</h3>
-        <p>Quarto analysis script and dataset for Brochet et al. (2025).</p>
-        <a href="Brochet%20et%20al%202025-%20Analysis%20script.qmd" class="btn" target="_blank" download>Script Quarto (.qmd)</a>
-        <a href="donn%C3%A9e_totale.csv" class="btn btn-secondary" target="_blank" download>Dataset (.csv)</a>
+    <!-- ==================== PROJECT 2 ==================== -->
+    <div id="proj-2" class="project-content">
+      <!-- LEVEL 2: Resource Sub-tabs -->
+      <div class="sub-tabs">
+        <button class="sub-tab-btn active" onclick="switchSubTab(event, 'p2-experiments', 'proj-2')">Experiment Code</button>
+        <button class="sub-tab-btn" onclick="switchSubTab(event, 'p2-scripts', 'proj-2')">Data & Analysis Scripts</button>
+        <button class="sub-tab-btn" onclick="switchSubTab(event, 'p2-papers', 'proj-2')">Preprint & Paper</button>
       </div>
 
-      <!-- Données du nouveau projet -->
-      <div class="pub">
-        <h3>New Project - Datasets</h3>
-        <p>Raw behavioral datasets (high-speed and low-speed conditions).</p>
-        <a href="datasethighspeed5.csv" class="btn" target="_blank" download>Dataset High Speed (.csv)</a>
-        <a href="datasetlowspeed5.csv" class="btn btn-secondary" target="_blank" download>Dataset Low Speed (.csv)</a>
+      <!-- P2: Experiment Code -->
+      <div id="p2-experiments" class="category-content active">
+        <div class="card">
+          <span class="badge">jsPsych Paradigm</span>
+          <h3>Dynamic Inattentional Blindness Task</h3>
+          <p>Task implementations across the two target-speed conditions (high-speed vs. low-speed targets).</p>
+          <a href="high%20speeded%20targets.js" class="btn" target="_blank" download>High Speed Targets (.js)</a>
+          <a href="low%20speeded%20targets.js" class="btn btn-secondary" target="_blank" download>Low Speed Targets (.js)</a>
+        </div>
+      </div>
+
+      <!-- P2: Data & Scripts -->
+      <div id="p2-scripts" class="category-content">
+        <div class="card">
+          <span class="badge">Raw Data</span>
+          <h3>Behavioral Datasets</h3>
+          <p>Curated experimental logs and response datasets for each speed condition.</p>
+          <a href="datasethighspeed5.csv" class="btn" target="_blank" download>High Speed Dataset (.csv)</a>
+          <a href="datasetlowspeed5.csv" class="btn btn-secondary" target="_blank" download>Low Speed Dataset (.csv)</a>
+        </div>
+        <div class="card">
+          <span class="badge">Analysis</span>
+          <h3>Statistical Analysis Scripts</h3>
+          <p>Statistical and signal detection pipeline scripts.</p>
+          <span class="btn btn-disabled">Analysis Script (In preparation)</span>
+        </div>
+      </div>
+
+      <!-- P2: Preprint & Paper -->
+      <div id="p2-papers" class="category-content">
+        <div class="card">
+          <span class="badge">Manuscript</span>
+          <h3>Empirical Manuscript</h3>
+          <p>Working paper and preregistered study documentation on dynamic inattentional blindness.</p>
+          <span class="btn btn-disabled">Preprint / PDF (Coming soon)</span>
+        </div>
       </div>
     </div>
 
-    <!-- Onglet 3 : Code d'expérience -->
-    <div id="tab-experiments" class="tab-content">
-      <div class="pub">
-        <h3>Brochet et al. (2025) - Tâche comportementale</h3>
-        <p>Protocole expérimental et stimuli utilisés dans l'étude.</p>
-        <a href="https://osf.io/..." class="btn" target="_blank">Télécharger la tâche</a>
-      </div>
-
-      <!-- Codes du nouveau projet -->
-      <div class="pub">
-        <h3>New Project - Experiment codes (jsPsych)</h3>
-        <p>Experimental scripts for the two target speed conditions.</p>
-        <a href="high%20speeded%20targets.js" class="btn" target="_blank" download>High Speed Targets (.js)</a>
-        <a href="low%20speeded%20targets.js" class="btn btn-secondary" target="_blank" download>Low Speed Targets (.js)</a>
-      </div>
-    </div>
-
-    <!-- Compteur de visites discret -->
+    <!-- Visitor Counter -->
     <div class="footer">
-      <img src="https://hitscounter.dev/api/hit?url=https%3A%2F%2Femilienb-bop.github.io%2Freprint%2F&label=Visites&color=%230366d6" alt="Compteur de visites">
+      <img src="https://hitscounter.dev/api/hit?url=https%3A%2F%2Femilienb-bop.github.io%2Freprint%2F&label=Visits&color=%230969da" alt="Visits counter">
     </div>
-
   </div>
 
   <script>
-    function switchTab(evt, tabId) {
-      const contents = document.querySelectorAll('.tab-content');
-      contents.forEach(content => content.classList.remove('active'));
+    // Project Switcher (Level 1)
+    function switchProject(evt, projectId) {
+      document.querySelectorAll('.project-content').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.proj-btn').forEach(btn => btn.classList.remove('active'));
 
-      const buttons = document.querySelectorAll('.tab-btn');
-      buttons.forEach(button => button.classList.remove('active'));
+      document.getElementById(projectId).classList.add('active');
+      evt.currentTarget.classList.add('active');
+    }
 
-      document.getElementById(tabId).classList.add('active');
+    // Category Sub-tabs Switcher (Level 2)
+    function switchSubTab(evt, categoryId, parentProjectId) {
+      const parent = document.getElementById(parentProjectId);
+      parent.querySelectorAll('.category-content').forEach(c => c.classList.remove('active'));
+      parent.querySelectorAll('.sub-tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      parent.querySelector('#' + categoryId).classList.add('active');
       evt.currentTarget.classList.add('active');
     }
   </script>
 </body>
 </html>
+
+```

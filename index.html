@@ -159,6 +159,7 @@
     /* --- Sub-tabs inside Project View --- */
     .sub-tabs {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 20px;
       background: #f6f8fa;
@@ -168,6 +169,7 @@
 
     .sub-tab-btn {
       flex: 1;
+      min-width: 140px;
       background: transparent;
       border: none;
       padding: 8px 12px;
@@ -303,7 +305,7 @@
   <div class="container">
     <header>
       <h1>Émilien Brochet | Open Science Repository</h1>
-      <p class="subtitle">Reprints, preprints, analysis scripts, raw datasets, and experiment code.</p>
+      <p class="subtitle">Reprints, preprints, preregistrations, analysis scripts, raw datasets, and experiment code.</p>
       
       <!-- Academic Contact & Identification -->
       <div class="author-meta">
@@ -344,7 +346,7 @@
           <h3 class="project-card-title">Project 1: ERIAM effect (2025)</h3>
           <span class="badge-status">Published</span>
         </div>
-        <p class="project-card-desc">Investigating cognitive control mechanisms and the ERIAM effect. Includes published paper, Quarto notebook, and full dataset.</p>
+        <p class="project-card-desc">Investigating cognitive control mechanisms and the ERIAM effect. Includes OSF preregistration, published paper, Quarto notebook, and full dataset.</p>
       </div>
 
       <!-- Project 2 Card -->
@@ -353,7 +355,7 @@
           <h3 class="project-card-title">Project 2: Inattentional Blindness for Speed</h3>
           <span class="badge-status ongoing">In progress</span>
         </div>
-        <p class="project-card-desc">Signal detection, kinematic sets, and multidimensional salience in dynamic inattentional blindness. Includes experimental tasks (jsPsych) and raw behavioral data.</p>
+        <p class="project-card-desc">Signal detection, kinematic sets, and multidimensional salience in dynamic inattentional blindness. Includes preregistration protocol, experimental tasks (jsPsych), and raw behavioral data.</p>
       </div>
     </div>
 
@@ -364,17 +366,28 @@
       <button class="back-btn" onclick="showProjectList()">← Back to Projects list</button>
 
       <h2 style="margin-top: 0; margin-bottom: 6px; font-size: 1.35rem;">Project 1: ERIAM effect (2025)</h2>
-      <p style="color: #57606a; margin-top: 0; margin-bottom: 20px; font-size: 0.9rem;">Peer-reviewed publication, analysis notebook, and raw data.</p>
+      <p style="color: #57606a; margin-top: 0; margin-bottom: 20px; font-size: 0.9rem;">Preregistration, peer-reviewed publication, analysis notebook, and raw data.</p>
 
       <!-- Sub-tabs -->
       <div class="sub-tabs">
-        <button class="sub-tab-btn active" onclick="switchSubTab(event, 'p1-papers', 'proj-1')">Publications & Reprints</button>
+        <button class="sub-tab-btn active" onclick="switchSubTab(event, 'p1-prereg', 'proj-1')">Online Preregistration</button>
+        <button class="sub-tab-btn" onclick="switchSubTab(event, 'p1-papers', 'proj-1')">Publications & Reprints</button>
         <button class="sub-tab-btn" onclick="switchSubTab(event, 'p1-scripts', 'proj-1')">Data & Analysis Scripts</button>
         <button class="sub-tab-btn" onclick="switchSubTab(event, 'p1-experiments', 'proj-1')">Experiment Code</button>
       </div>
 
+      <!-- P1: Preregistration -->
+      <div id="p1-prereg" class="category-content active">
+        <div class="card">
+          <span class="badge">OSF Preregistration</span>
+          <h3>Preregistered Protocol</h3>
+          <p>Formal empirical preregistration hosted on the Open Science Framework (OSF).</p>
+          <a href="https://osf.io/u6pyk" class="btn" target="_blank" rel="noopener noreferrer">View on OSF (u6pyk)</a>
+        </div>
+      </div>
+
       <!-- P1: Publications -->
-      <div id="p1-papers" class="category-content active">
+      <div id="p1-papers" class="category-content">
         <div class="card">
           <span class="badge">Peer-Reviewed Article</span>
           <h3>Brochet et al. (2025)</h3>
@@ -417,13 +430,24 @@
 
       <!-- Sub-tabs -->
       <div class="sub-tabs">
-        <button class="sub-tab-btn active" onclick="switchSubTab(event, 'p2-experiments', 'proj-2')">Experiment Code</button>
+        <button class="sub-tab-btn active" onclick="switchSubTab(event, 'p2-prereg', 'proj-2')">Online Preregistration</button>
+        <button class="sub-tab-btn" onclick="switchSubTab(event, 'p2-experiments', 'proj-2')">Experiment Code</button>
         <button class="sub-tab-btn" onclick="switchSubTab(event, 'p2-scripts', 'proj-2')">Data & Analysis Scripts</button>
         <button class="sub-tab-btn" onclick="switchSubTab(event, 'p2-papers', 'proj-2')">Preprint & Paper</button>
       </div>
 
+      <!-- P2: Preregistration -->
+      <div id="p2-prereg" class="category-content active">
+        <div class="card">
+          <span class="badge">Preregistration</span>
+          <h3>Preregistered Protocol</h3>
+          <p>Signal detection modeling, multidimensional stimulus salience, and response bias decomposition.</p>
+          <span class="btn btn-disabled">OSF Link (In preparation)</span>
+        </div>
+      </div>
+
       <!-- P2: Experiment Code -->
-      <div id="p2-experiments" class="category-content active">
+      <div id="p2-experiments" class="category-content">
         <div class="card">
           <span class="badge">jsPsych Paradigm</span>
           <h3>Dynamic Inattentional Blindness Task</h3>
